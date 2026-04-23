@@ -1,15 +1,11 @@
 const express = require("express");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// DATA
 const kicks = [];
 const notifications = [];
-
-// ---------------- KICK ROUTES ----------------
 
 app.post("/kick", (req, res) => {
   const log = {
@@ -21,7 +17,7 @@ app.post("/kick", (req, res) => {
 
   kicks.push(log);
 
-  console.log("KICK LOG:", log);
+  console.log("🚨 KICK LOG:", log);
 
   res.json({
     success: true,
@@ -30,8 +26,10 @@ app.post("/kick", (req, res) => {
 });
 
 app.post("/kick/handled", (req, res) => {
+  const hwid = req.body.hwid;
+
   for (let log of kicks) {
-    if (log.hwid === req.body.hwid) {
+    if (log.hwid === hwid) {
       log.handled = true;
     }
   }
@@ -58,8 +56,6 @@ app.get("/kicks/clear", (req, res) => {
   });
 });
 
-// ---------------- NOTIFY ROUTES ----------------
-
 app.post("/notify", (req, res) => {
   const log = {
     text: req.body.text,
@@ -69,7 +65,7 @@ app.post("/notify", (req, res) => {
 
   notifications.push(log);
 
-  console.log("NOTIFY LOG:", log);
+  console.log("📢 NOTIFY LOG:", log);
 
   res.json({
     success: true,
@@ -78,8 +74,10 @@ app.post("/notify", (req, res) => {
 });
 
 app.post("/notify/read", (req, res) => {
+  const time = req.body.time;
+
   for (let log of notifications) {
-    if (log.time === req.body.time) {
+    if (log.time === time) {
       log.read = true;
     }
   }
@@ -106,8 +104,6 @@ app.get("/notify/clear", (req, res) => {
   });
 });
 
-// ---------------- START SERVER ----------------
-
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
