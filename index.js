@@ -12,6 +12,7 @@ const kicks = [];
 app.post("/kick", (req, res) => {
   const log = {
     hwid: req.body.hwid,
+    reason: req.body.reason,
     time: Date.now()
   };
 
