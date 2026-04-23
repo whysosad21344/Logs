@@ -8,7 +8,7 @@ app.use(express.json());
 // ===== KICK LOG STORE =====
 const kicks = [];
 
-// ===== KICK ENDPOINT =====
+// ===== KICK ENDPOINT (DO NOT CHANGE - your system uses this) =====
 app.post("/kick", (req, res) => {
   const log = {
     hwid: req.body.hwid,
@@ -22,6 +22,23 @@ app.post("/kick", (req, res) => {
   res.json({
     success: true,
     message: "Kick logged"
+  });
+});
+
+// ===== NEW: READ KICKS ENDPOINT =====
+app.get("/kicks", (req, res) => {
+  res.json({
+    success: true,
+    data: kicks
+  });
+});
+
+// ===== OPTIONAL: CLEAR KICKS (useful later for queue systems) =====
+app.get("/kicks/clear", (req, res) => {
+  kicks.length = 0;
+  res.json({
+    success: true,
+    message: "Kicks cleared"
   });
 });
 
