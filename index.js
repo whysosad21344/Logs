@@ -13,7 +13,8 @@ app.post("/kick", (req, res) => {
   const log = {
     hwid: req.body.hwid,
     reason: req.body.reason,
-    time: Date.now()
+    time: Date.now(),
+    handled: false
   };
 
   kicks.push(log);
@@ -26,7 +27,23 @@ app.post("/kick", (req, res) => {
   });
 });
 
-// ===== NEW: READ KICKS ENDPOINT =====
+// ===== MARK KICK AS HANDLED =====
+app.post("/kick/handled", (req, res) => {
+  const hwid = req.body.hwid;
+
+  for (let log of kicks) {
+    if (log.hwid === hwid) {
+      log.handled = true;
+    }
+  }
+
+  res.json({
+    success: true,
+    message: "Marked as handled"
+  });
+});
+
+// ===== READ KICKS =====
 app.get("/kicks", (req, res) => {
   res.json({
     success: true,
@@ -34,7 +51,7 @@ app.get("/kicks", (req, res) => {
   });
 });
 
-// ===== OPTIONAL: CLEAR KICKS (useful later for queue systems) =====
+// ===== CLEAR KICKS =====
 app.get("/kicks/clear", (req, res) => {
   kicks.length = 0;
   res.json({
