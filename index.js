@@ -1,1 +1,1 @@
-
+require("./logger.js");
