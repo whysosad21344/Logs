@@ -1,12 +1,32 @@
 const express = require("express");
+require("dotenv").config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// 🔐 AUTH
+function auth(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token || token !== process.env.API_TOKEN) {
+    return res.status(403).json({
+      success: false,
+      message: "Forbidden: Invalid token"
+    });
+  }
+
+  next();
+}
+
+app.use(auth);
+
+// DATA
 const kicks = [];
 const notifications = [];
 
+// ROUTES
 app.post("/kick", (req, res) => {
   const log = {
     hwid: req.body.hwid,
@@ -19,41 +39,26 @@ app.post("/kick", (req, res) => {
 
   console.log("🚨 KICK LOG:", log);
 
-  res.json({
-    success: true,
-    message: "Kick logged"
-  });
+  res.json({ success: true, message: "Kick logged" });
 });
 
 app.post("/kick/handled", (req, res) => {
-  const hwid = req.body.hwid;
-
   for (let log of kicks) {
-    if (log.hwid === hwid) {
+    if (log.hwid === req.body.hwid) {
       log.handled = true;
     }
   }
 
-  res.json({
-    success: true,
-    message: "Marked as handled"
-  });
+  res.json({ success: true, message: "Marked as handled" });
 });
 
 app.get("/kicks", (req, res) => {
-  res.json({
-    success: true,
-    data: kicks
-  });
+  res.json({ success: true, data: kicks });
 });
 
 app.get("/kicks/clear", (req, res) => {
   kicks.length = 0;
-
-  res.json({
-    success: true,
-    message: "Kicks cleared"
-  });
+  res.json({ success: true, message: "Kicks cleared" });
 });
 
 app.post("/notify", (req, res) => {
@@ -67,41 +72,26 @@ app.post("/notify", (req, res) => {
 
   console.log("📢 NOTIFY LOG:", log);
 
-  res.json({
-    success: true,
-    message: "Notification logged"
-  });
+  res.json({ success: true, message: "Notification logged" });
 });
 
 app.post("/notify/read", (req, res) => {
-  const time = req.body.time;
-
   for (let log of notifications) {
-    if (log.time === time) {
+    if (log.time === req.body.time) {
       log.read = true;
     }
   }
 
-  res.json({
-    success: true,
-    message: "Notification marked as read"
-  });
+  res.json({ success: true, message: "Notification marked as read" });
 });
 
 app.get("/notify", (req, res) => {
-  res.json({
-    success: true,
-    data: notifications
-  });
+  res.json({ success: true, data: notifications });
 });
 
 app.get("/notify/clear", (req, res) => {
   notifications.length = 0;
-
-  res.json({
-    success: true,
-    message: "Notifications cleared"
-  });
+  res.json({ success: true, message: "Notifications cleared" });
 });
 
 app.listen(PORT, () => {
