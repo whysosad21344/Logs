@@ -10,33 +10,13 @@ let usernames = [];
 /* ---------------- STATCHECK ---------------- */
 // POST endpoint to receive usernames (from Discord or other sources)
 app.post("/statcheck", (req, res) => {
-    const { username, message } = req.body; // Extract username and message from the request body
-
-    // Check if username is present
-    if (username && message) {
-        // Log the received username and message for confirmation
-        console.log(`Received confirmation: ${username} - ${message}`);
-
-        // Check if the username is already in the list
-        if (!usernames.includes(username)) {
-            usernames.push(username); // Add username to the list if not already stored
-            res.status(200).json({
-                success: true,
-                message: "Data received successfully",
-            });
-        } else {
-            // If the username is already stored, return an appropriate response
-            res.status(400).json({
-                success: false,
-                message: "Username already received",
-            });
-        }
+    const { username } = req.body; // Extract the username from the request body
+    if (username && !usernames.includes(username)) {
+        usernames.push(username); // Store the username if not already stored
+        console.log('Received username:', username); // Log the received username
+        res.json({ success: true, message: "Data received successfully" });
     } else {
-        // If username or message is missing, return an error response
-        res.status(400).json({
-            success: false,
-            message: "Invalid username or message",
-        });
+        res.json({ success: false, message: "Username already received or invalid" });
     }
 });
 
@@ -44,25 +24,35 @@ app.post("/statcheck", (req, res) => {
 // GET endpoint to check if a username is stored
 app.get("/checkusername", (req, res) => {
     const { username } = req.query; // Get the username from the query string
-
-    // Handle missing query parameter
-    if (!username) {
-        return res.status(400).json({
-            success: false,
-            message: "Username query parameter is required",
-        });
-    }
-
-    // Check if the username is stored
     if (usernames.includes(username)) {
-        return res.status(200).json({
+        res.json({ success: true, message: `Username ${username} found` });
+    } else {
+        res.json({ success: false, message: `Username ${username} not found` });
+    }
+});
+
+/* ---------------- CONFIRM USER ---------------- */
+// POST endpoint to confirm the username found in the game
+app.post("/confirmfound", (req, res) => {
+    const { username, message } = req.body; // Extract username and message
+    if (username && message) {
+        // Log the confirmation message (could be "FOUND USER IN GAME" or other)
+        console.log(`Confirmation received: ${username} - ${message}`);
+
+        // Store the username if it's not already in the list
+        if (!usernames.includes(username)) {
+            usernames.push(username);
+            console.log(`Stored confirmed username: ${username}`);
+        }
+
+        res.json({
             success: true,
-            message: `Username ${username} found`,
+            message: "Confirmation received successfully"
         });
     } else {
-        return res.status(404).json({
+        res.json({
             success: false,
-            message: `Username ${username} not found`,
+            message: "Invalid username or message"
         });
     }
 });
