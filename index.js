@@ -7,18 +7,24 @@ app.use(express.json());
 const kicks = [];
 const notifications = [];
 const users = [];
-let activePings = 0;  // Global counter for active pings
+let activePings = {};  // Object to track active pings for each user, keyed by hwid or username
+let pingTimeout = 5 * 1000;  // 5 seconds to track inactivity
 
 /* ---------------- PING ---------------- */
 
 // Handle the ping count (Increment ping count when a ping is received)
 app.post("/ping", (req, res) => {
-  const count = req.body.count || 0;
+  const hwid = req.body.hwid || null;
+  const username = req.body.username || null;
 
-  if (count === 1) {
-    activePings += 1;
-    console.log(`✅ Ping received: Count increased to ${activePings}`);
+  if (!hwid && !username) {
+    return res.status(400).json({ success: false, message: "HWID or username required" });
   }
+
+  const userKey = hwid || username;
+  activePings[userKey] = Date.now();  // Update last ping time
+
+  console.log(`✅ Ping received from ${userKey}: Count increased`);
 
   res.json({
     success: true,
@@ -26,13 +32,21 @@ app.post("/ping", (req, res) => {
   });
 });
 
-// Remove the ping count (Decrement ping count when a ping is removed)
+// Remove the ping count (Decrement ping count when a ping is removed or when inactive)
 app.post("/ping/remove", (req, res) => {
-  const count = req.body.count || 0;
+  const hwid = req.body.hwid || null;
+  const username = req.body.username || null;
 
-  if (count === 1 && activePings > 0) {
-    activePings -= 1;
-    console.log(`✅ Ping removed: Count decreased to ${activePings}`);
+  if (!hwid && !username) {
+    return res.status(400).json({ success: false, message: "HWID or username required" });
+  }
+
+  const userKey = hwid || username;
+  
+  // Remove the user from active pings if they exist
+  if (activePings[userKey]) {
+    delete activePings[userKey];
+    console.log(`✅ Ping removed for ${userKey}: Count decreased`);
   }
 
   res.json({
@@ -40,6 +54,21 @@ app.post("/ping/remove", (req, res) => {
     message: "Ping removed"
   });
 });
+
+/* ---------------- PING INACTIVITY CHECK ---------------- */
+
+// Periodically check for inactive pings (every 5 seconds)
+setInterval(() => {
+  const currentTime = Date.now();
+
+  for (let userKey in activePings) {
+    if (currentTime - activePings[userKey] > pingTimeout) {
+      // If the user hasn't pinged in the last 5 seconds, remove them from active pings
+      delete activePings[userKey];
+      console.log(`❌ User ${userKey} inactive for more than 5 seconds, ping removed`);
+    }
+  }
+}, 5000);
 
 /* ---------------- KICKS ---------------- */
 
