@@ -1,13 +1,15 @@
 const express = require("express");
+const cors = require("cors");  // Import CORS package
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());  // Enable CORS for all origins
 app.use(express.json()); // To parse incoming JSON payloads
 
 /* ---------------- STATCHECK ---------------- */
-// POST endpoint to receive any data from Discord or other sources
 app.post("/statcheck", (req, res) => {
-    const { username } = req.body; // Extract the username from the request body
+    console.log('Request body:', req.body);  // Log the entire body to see if it's being sent
+    const { username } = req.body;
     console.log('Received username:', username); // Log the received username
     res.json({ success: true, message: "Data received successfully" });
 });
