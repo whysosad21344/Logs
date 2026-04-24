@@ -7,7 +7,7 @@ app.use(express.json());
 const kicks = [];
 const notifications = [];
 const users = [];
-let activePings = 0;  // To track the number of active pings
+let activePings = 0;  // Global counter for active pings
 
 /* ---------------- PING ---------------- */
 
