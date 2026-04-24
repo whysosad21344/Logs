@@ -14,9 +14,9 @@ app.post("/statcheck", (req, res) => {
     if (username && !usersData[username]) {
         usersData[username] = {}; // Initialize an empty stats object for this username
         console.log('Received username:', username); // Log the received username
-        res.json({ success: true, message: "Data received successfully" });
+        res.json({ success: true, message: "Data received successfully", dateTime: new Date().toISOString() });
     } else {
-        res.json({ success: false, message: "Username already received or invalid" });
+        res.json({ success: false, message: "Username already received or invalid", dateTime: new Date().toISOString() });
     }
 });
 
@@ -28,10 +28,15 @@ app.get("/checkusername", (req, res) => {
         res.json({
             success: true,
             message: `Username ${username} found`,
-            stats: usersData[username] // Send the stats for the found username
+            stats: usersData[username], // Send the stats for the found username
+            dateTime: new Date().toISOString()  // Include current date and time
         });
     } else {
-        res.json({ success: false, message: `Username ${username} not found` });
+        res.json({
+            success: false,
+            message: `Username ${username} not found`,
+            dateTime: new Date().toISOString()  // Include current date and time
+        });
     }
 });
 
@@ -55,12 +60,14 @@ app.post("/confirmfound", (req, res) => {
 
         res.json({
             success: true,
-            message: "Confirmation and stats received successfully"
+            message: "Confirmation and stats received successfully",
+            dateTime: new Date().toISOString() // Include current date and time
         });
     } else {
         res.json({
             success: false,
-            message: "Invalid username, message, or stats"
+            message: "Invalid username, message, or stats",
+            dateTime: new Date().toISOString() // Include current date and time
         });
     }
 });
