@@ -72,6 +72,20 @@ app.post("/confirmfound", (req, res) => {
     }
 });
 
+/* ---------------- CLEAR USER DATA ---------------- */
+// POST endpoint to clear the data for a specific username and its stats
+app.post("/clearusername", (req, res) => {
+    const { username } = req.body; // Extract the username from the request body
+    if (username && usersData[username]) {
+        // Remove both username and stats from the in-memory data store
+        delete usersData[username]; 
+        console.log(`Data and stats for ${username} cleared from server.`);
+        res.json({ success: true, message: `Data for ${username} cleared.` });
+    } else {
+        res.json({ success: false, message: `Username ${username} not found or already cleared.` });
+    }
+});
+
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
