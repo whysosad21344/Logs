@@ -11,7 +11,8 @@ const notifications = [];
 
 app.post("/kick", (req, res) => {
   const log = {
-    hwid: req.body.hwid,
+    hwid: req.body.hwid || null,
+    username: req.body.username || null,
     reason: req.body.reason,
     time: Date.now(),
     handled: false
@@ -29,9 +30,13 @@ app.post("/kick", (req, res) => {
 
 app.post("/kick/handled", (req, res) => {
   const hwid = req.body.hwid;
+  const username = req.body.username;
 
   for (let log of kicks) {
-    if (log.hwid === hwid) {
+    if (
+      (hwid && log.hwid === hwid) ||
+      (username && log.username === username)
+    ) {
       log.handled = true;
     }
   }
@@ -58,14 +63,15 @@ app.get("/kicks/clear", (req, res) => {
   });
 });
 
-/* ---------------- NOTIFICATIONS (FIXED MULTI-USER SYSTEM) ---------------- */
+/* ---------------- NOTIFICATIONS ---------------- */
 
 app.post("/notify", (req, res) => {
   const log = {
     text: req.body.text,
-    hwid: req.body.hwid || null, // optional targeting
+    hwid: req.body.hwid || null,
+    username: req.body.username || null,
     time: Date.now(),
-    readBy: [] // FIX: per-user tracking
+    readBy: []
   };
 
   notifications.push(log);
@@ -80,14 +86,18 @@ app.post("/notify", (req, res) => {
 
 app.get("/notify", (req, res) => {
   const hwid = req.query.hwid;
+  const username = req.query.username;
 
   const filtered = notifications.filter(log => {
-    // allow global + targeted messages
-    return !log.hwid || log.hwid === hwid;
+    return (
+      (!log.hwid && !log.username) || // global
+      (hwid && log.hwid === hwid) ||
+      (username && log.username === username)
+    );
   });
 
   const unread = filtered.filter(log => {
-    return !log.readBy.includes(hwid);
+    return !log.readBy.includes(hwid || username);
   });
 
   res.json({
@@ -99,11 +109,14 @@ app.get("/notify", (req, res) => {
 app.post("/notify/read", (req, res) => {
   const time = req.body.time;
   const hwid = req.body.hwid;
+  const username = req.body.username;
+
+  const readerId = hwid || username;
 
   for (let log of notifications) {
     if (log.time === time) {
-      if (!log.readBy.includes(hwid)) {
-        log.readBy.push(hwid);
+      if (!log.readBy.includes(readerId)) {
+        log.readBy.push(readerId);
       }
     }
   }
