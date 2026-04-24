@@ -3,95 +3,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
-const kicks = [];
-const notifications = [];
-const userInfo = [];  // New array for storing user info
+const stats = [];  // Array to hold user stats
 
-/* ---------------- KICKS ---------------- */
-app.post("/kick", (req, res) => {
-    const log = {
-        hwid: req.body.hwid || null,
-        username: req.body.username || null,
-        reason: req.body.reason,
-        time: Date.now(),
-        handled: false
-    };
-    kicks.push(log);
-    console.log("🚨 KICK LOG:", log);
-    res.json({ success: true, message: "Kick logged" });
-});
-
-app.post("/kick/handled", (req, res) => {
-    const hwid = req.body.hwid;
-    const username = req.body.username;
-    for (let log of kicks) {
-        if ((hwid && log.hwid === hwid) || (username && log.username === username)) {
-            log.handled = true;
-        }
-    }
-    res.json({ success: true, message: "Marked as handled" });
-});
-
-app.get("/kicks", (req, res) => {
-    res.json({ success: true, data: kicks });
-});
-
-app.get("/kicks/clear", (req, res) => {
-    kicks.length = 0;
-    res.json({ success: true, message: "Kicks cleared" });
-});
-
-/* ---------------- NOTIFICATIONS (renamed to Notification) ---------------- */
-app.post("/notification", (req, res) => {
-    const log = {
-        text: req.body.text,
-        hwid: req.body.hwid || null,
-        username: req.body.username || null,
-        time: Date.now(),
-        readBy: []
-    };
-    notifications.push(log);
-    console.log("📢 NOTIFY LOG:", log);
-    res.json({ success: true, message: "Notification logged" });
-});
-
-app.get("/notification", (req, res) => {
-    const hwid = req.query.hwid;
-    const username = req.query.username;
-    const filtered = notifications.filter(log => {
-        return ((!log.hwid && !log.username) || (hwid && log.hwid === hwid) || (username && log.username === username));
-    });
-    const unread = filtered.filter(log => {
-        return !log.readBy.includes(hwid || username);
-    });
-    res.json({ success: true, data: unread });
-});
-
-app.post("/notification/read", (req, res) => {
-    const time = req.body.time;
-    const hwid = req.body.hwid;
-    const username = req.body.username;
-    const readerId = hwid || username;
-    for (let log of notifications) {
-        if (log.time === time) {
-            if (!log.readBy.includes(readerId)) {
-                log.readBy.push(readerId);
-            }
-        }
-    }
-    res.json({ success: true, message: "Notification marked as read for user" });
-});
-
-app.get("/notification/clear", (req, res) => {
-    notifications.length = 0;
-    res.json({ success: true, message: "Notifications cleared" });
-});
-
-/* ---------------- USERINFO ---------------- */
-app.post("/userinfo", (req, res) => {
+/* ---------------- STATCHECK ---------------- */
+app.post("/statcheck", (req, res) => {
     const {
         username,
-        time,
         damage_percentage,
         sword_damage_percentage,
         melee_damage_percentage,
@@ -122,24 +39,54 @@ app.post("/userinfo", (req, res) => {
             money_percentage: parseFloat(money_percentage),
             gems_percentage: parseFloat(gems_percentage)
         },
-        time: time
+        time: Date.now()
     };
 
-    userInfo.push(log);
-    console.log("🚨 USERINFO LOG:", log);
-    res.json({ success: true, message: "User info logged" });
+    stats.push(log);
+    console.log("📊 STATCHECK LOG:", log);
+    res.json({ success: true, message: "User stats logged" });
 });
 
-app.get("/userinfo", (req, res) => {
-    res.json({ success: true, data: userInfo });
+app.get("/statcheck", (req, res) => {
+    const username = req.query.username;
+    const filteredStats = stats.filter(log => log.username === username);
+
+    if (filteredStats.length === 0) {
+        return res.status(404).json({ success: false, message: "No stats found for the given username" });
+    }
+
+    res.json({ success: true, data: filteredStats });
 });
 
-app.get("/userinfo/clear", (req, res) => {
-    userInfo.length = 0;
-    res.json({ success: true, message: "User info cleared" });
+app.put("/statcheck", (req, res) => {
+    const username = req.body.username;
+    const updatedStats = req.body.stats;
+
+    let userFound = false;
+
+    for (let stat of stats) {
+        if (stat.username === username) {
+            stat.stats = { ...stat.stats, ...updatedStats };  // Merge existing stats with updated stats
+            stat.time = Date.now();  // Update time to the current timestamp
+            userFound = true;
+            console.log("📊 UPDATED STATCHECK LOG:", stat);
+            break;
+        }
+    }
+
+    if (!userFound) {
+        return res.status(404).json({ success: false, message: "Username not found for update" });
+    }
+
+    res.json({ success: true, message: "User stats updated" });
+});
+
+app.get("/statcheck/clear", (req, res) => {
+    stats.length = 0;
+    res.json({ success: true, message: "All user stats cleared" });
 });
 
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Statcheck server running on port ${PORT}`);
 });
