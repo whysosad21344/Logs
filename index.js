@@ -1,18 +1,25 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-app.use(express.json()); // To parse incoming JSON payloads
+// Your StatTest service logic
+app.get('/statTest', (req, res) => {
+    // Example of a basic statistical test: Mean of numbers (just as a simple example)
+    const numbers = req.query.numbers ? req.query.numbers.split(',').map(Number) : [];
 
-/* ---------------- STATCHECK ---------------- */
-// POST endpoint to receive any data from Discord or other sources
-app.post("/statcheck", (req, res) => {
-    const { username } = req.body; // Extract the username from the request body
-    console.log('Received username:', username); // Log the received username
-    res.json({ success: true, message: "Data received successfully" });
+    if (numbers.length === 0) {
+        return res.status(400).json({ error: 'No numbers provided for the test' });
+    }
+
+    const mean = numbers.reduce((acc, num) => acc + num, 0) / numbers.length;
+    
+    res.json({
+        mean: mean,
+        data: numbers
+    });
 });
 
-/* ---------------- START ---------------- */
-app.listen(PORT, () => {
-    console.log(`🚀 Statcheck server running on port ${PORT}`);
+// Start the server
+app.listen(port, () => {
+    console.log(`StatTest web service is running on http://localhost:${port}`);
 });
