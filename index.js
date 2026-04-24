@@ -7,70 +7,6 @@ app.use(express.json());
 const kicks = [];
 const notifications = [];
 const users = [];
-let activePings = {};  // Object to track active pings for each user, keyed by hwid or username
-let pingTimeout = 5 * 1000;  // 5 seconds to track inactivity
-
-/* ---------------- PING ---------------- */
-
-// Handle the ping count (Increment ping count when a ping is received)
-app.post("/ping", (req, res) => {
-  const hwid = req.body.hwid || null;
-  const username = req.body.username || null;
-
-  if (!hwid && !username) {
-    return res.status(400).json({ success: false, message: "HWID or username required" });
-  }
-
-  const userKey = hwid || username;
-  activePings[userKey] = Date.now();  // Update last ping time
-
-  console.log(`✅ Ping received from ${userKey}: Count increased`);
-
-  res.json({
-    success: true,
-    message: "Ping received"
-  });
-});
-
-// Remove the ping count (Decrement ping count when a ping is removed or when inactive)
-app.post("/ping/remove", (req, res) => {
-  const hwid = req.body.hwid || null;
-  const username = req.body.username || null;
-
-  if (!hwid && !username) {
-    return res.status(400).json({ success: false, message: "HWID or username required" });
-  }
-
-  const userKey = hwid || username;
-  
-  // Remove the user from active pings if they exist
-  if (activePings[userKey]) {
-    delete activePings[userKey];
-    console.log(`✅ Ping removed for ${userKey}: Count decreased`);
-  }
-
-  res.json({
-    success: true,
-    message: "Ping removed"
-  });
-});
-
-/* ---------------- PING INACTIVITY CHECK ---------------- */
-
-// Periodically check for inactive pings (every 5 seconds)
-setInterval(() => {
-  const currentTime = Date.now();
-
-  for (let userKey in activePings) {
-    if (currentTime - activePings[userKey] > pingTimeout) {
-      // If the user hasn't pinged in the last 5 seconds, remove them from active pings
-      delete activePings[userKey];
-      console.log(`❌ User ${userKey} inactive for more than 5 seconds, ping removed`);
-    }
-  }
-}, 5000);
-
-/* ---------------- KICKS ---------------- */
 
 app.post("/kick", (req, res) => {
   const log = {
@@ -126,8 +62,6 @@ app.get("/kicks/clear", (req, res) => {
   });
 });
 
-/* ---------------- NOTIFICATIONS ---------------- */
-
 app.post("/notify", (req, res) => {
   const log = {
     text: req.body.text,
@@ -153,7 +87,7 @@ app.get("/notify", (req, res) => {
 
   const filtered = notifications.filter(log => {
     return (
-      (!log.hwid && !log.username) || // global
+      (!log.hwid && !log.username) ||
       (hwid && log.hwid === hwid) ||
       (username && log.username === username)
     );
@@ -199,9 +133,6 @@ app.get("/notify/clear", (req, res) => {
   });
 });
 
-/* ---------------- USERS ---------------- */
-
-// Add a new user
 app.post("/user", (req, res) => {
   const user = {
     hwid: req.body.hwid,
@@ -221,7 +152,6 @@ app.post("/user", (req, res) => {
   });
 });
 
-// Get user info by hwid or username
 app.get("/user", (req, res) => {
   const hwid = req.query.hwid;
   const username = req.query.username;
@@ -241,7 +171,6 @@ app.get("/user", (req, res) => {
   });
 });
 
-// Update user info (email, etc.)
 app.post("/user/update", (req, res) => {
   const hwid = req.body.hwid;
   const username = req.body.username;
@@ -266,7 +195,6 @@ app.post("/user/update", (req, res) => {
   });
 });
 
-// Delete a user
 app.delete("/user", (req, res) => {
   const hwid = req.body.hwid;
   const username = req.body.username;
@@ -289,8 +217,6 @@ app.delete("/user", (req, res) => {
     message: "User deleted"
   });
 });
-
-/* ---------------- START ---------------- */
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
