@@ -33,11 +33,16 @@ app.get("/checkusername", (req, res) => {
 
 /* ---------------- CONFIRM USER ---------------- */
 // POST endpoint to confirm the username found in the game
+// Now we handle stats as well in the request body
 app.post("/confirmfound", (req, res) => {
-    const { username, message } = req.body; // Extract username and message
-    if (username && message) {
+    const { username, message, stats } = req.body; // Extract username, message, and stats
+    if (username && message && stats) {
         // Log the confirmation message (could be "FOUND USER IN GAME" or other)
         console.log(`Confirmation received: ${username} - ${message}`);
+
+        // Log stats
+        console.log("Stats received for user:", username);
+        console.log(stats);
 
         // Store the username if it's not already in the list
         if (!usernames.includes(username)) {
@@ -52,7 +57,7 @@ app.post("/confirmfound", (req, res) => {
     } else {
         res.json({
             success: false,
-            message: "Invalid username or message"
+            message: "Invalid username, message, or stats"
         });
     }
 });
