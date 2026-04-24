@@ -1,17 +1,34 @@
 const express = require("express");
-const cors = require("cors");  // Import CORS package
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());  // Enable CORS for all origins
 app.use(express.json()); // To parse incoming JSON payloads
 
+// In-memory storage for usernames (just for demonstration)
+let usernames = [];
+
 /* ---------------- STATCHECK ---------------- */
+// POST endpoint to receive usernames (from Discord or other sources)
 app.post("/statcheck", (req, res) => {
-    console.log('Request body:', req.body);  // Log the entire body to see if it's being sent
-    const { username } = req.body;
-    console.log('Received username:', username); // Log the received username
-    res.json({ success: true, message: "Data received successfully" });
+    const { username } = req.body; // Extract the username from the request body
+    if (username && !usernames.includes(username)) {
+        usernames.push(username); // Store the username if not already stored
+        console.log('Received username:', username); // Log the received username
+        res.json({ success: true, message: "Data received successfully" });
+    } else {
+        res.json({ success: false, message: "Username already received or invalid" });
+    }
+});
+
+/* ---------------- CHECK USERNAME ---------------- */
+// GET endpoint to check if a username is stored
+app.get("/checkusername", (req, res) => {
+    const { username } = req.query; // Get the username from the query string
+    if (usernames.includes(username)) {
+        res.json({ success: true, message: `Username ${username} found` });
+    } else {
+        res.json({ success: false, message: `Username ${username} not found` });
+    }
 });
 
 /* ---------------- START ---------------- */
