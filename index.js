@@ -7,7 +7,8 @@ app.use(express.json()); // To parse incoming JSON payloads
 /* ---------------- STATCHECK ---------------- */
 // POST endpoint to receive any data from Discord or other sources
 app.post("/statcheck", (req, res) => {
-    // Just return a success message without inspecting the data
+    const { username } = req.body; // Extract the username from the request body
+    console.log('Received username:', username); // Log the received username
     res.json({ success: true, message: "Data received successfully" });
 });
 
