@@ -7,6 +7,39 @@ app.use(express.json());
 const kicks = [];
 const notifications = [];
 const users = [];
+let activePings = 0;  // To track the number of active pings
+
+/* ---------------- PING ---------------- */
+
+// Handle the ping count (Increment ping count when a ping is received)
+app.post("/ping", (req, res) => {
+  const count = req.body.count || 0;
+
+  if (count === 1) {
+    activePings += 1;
+    console.log(`✅ Ping received: Count increased to ${activePings}`);
+  }
+
+  res.json({
+    success: true,
+    message: "Ping received"
+  });
+});
+
+// Remove the ping count (Decrement ping count when a ping is removed)
+app.post("/ping/remove", (req, res) => {
+  const count = req.body.count || 0;
+
+  if (count === 1 && activePings > 0) {
+    activePings -= 1;
+    console.log(`✅ Ping removed: Count decreased to ${activePings}`);
+  }
+
+  res.json({
+    success: true,
+    message: "Ping removed"
+  });
+});
 
 /* ---------------- KICKS ---------------- */
 
