@@ -41,8 +41,8 @@ app.get("/kicks/clear", (req, res) => {
     res.json({ success: true, message: "Kicks cleared" });
 });
 
-/* ---------------- NOTIFICATIONS ---------------- */
-app.post("/notify", (req, res) => {
+/* ---------------- NOTIFICATIONS (renamed to Notification) ---------------- */
+app.post("/notification", (req, res) => {
     const log = {
         text: req.body.text,
         hwid: req.body.hwid || null,
@@ -55,7 +55,7 @@ app.post("/notify", (req, res) => {
     res.json({ success: true, message: "Notification logged" });
 });
 
-app.get("/notify", (req, res) => {
+app.get("/notification", (req, res) => {
     const hwid = req.query.hwid;
     const username = req.query.username;
     const filtered = notifications.filter(log => {
@@ -67,7 +67,7 @@ app.get("/notify", (req, res) => {
     res.json({ success: true, data: unread });
 });
 
-app.post("/notify/read", (req, res) => {
+app.post("/notification/read", (req, res) => {
     const time = req.body.time;
     const hwid = req.body.hwid;
     const username = req.body.username;
@@ -82,7 +82,7 @@ app.post("/notify/read", (req, res) => {
     res.json({ success: true, message: "Notification marked as read for user" });
 });
 
-app.get("/notify/clear", (req, res) => {
+app.get("/notification/clear", (req, res) => {
     notifications.length = 0;
     res.json({ success: true, message: "Notifications cleared" });
 });
