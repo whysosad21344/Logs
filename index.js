@@ -7,6 +7,8 @@ app.use(express.json());
 const kicks = [];
 const notifications = [];
 
+/* ---------------- KICKS ---------------- */
+
 app.post("/kick", (req, res) => {
   const log = {
     hwid: req.body.hwid,
@@ -56,11 +58,14 @@ app.get("/kicks/clear", (req, res) => {
   });
 });
 
+/* ---------------- NOTIFICATIONS (FIXED MULTI-USER SYSTEM) ---------------- */
+
 app.post("/notify", (req, res) => {
   const log = {
     text: req.body.text,
+    hwid: req.body.hwid || null, // optional targeting
     time: Date.now(),
-    read: false
+    readBy: [] // FIX: per-user tracking
   };
 
   notifications.push(log);
@@ -73,25 +78,39 @@ app.post("/notify", (req, res) => {
   });
 });
 
+app.get("/notify", (req, res) => {
+  const hwid = req.query.hwid;
+
+  const filtered = notifications.filter(log => {
+    // allow global + targeted messages
+    return !log.hwid || log.hwid === hwid;
+  });
+
+  const unread = filtered.filter(log => {
+    return !log.readBy.includes(hwid);
+  });
+
+  res.json({
+    success: true,
+    data: unread
+  });
+});
+
 app.post("/notify/read", (req, res) => {
   const time = req.body.time;
+  const hwid = req.body.hwid;
 
   for (let log of notifications) {
     if (log.time === time) {
-      log.read = true;
+      if (!log.readBy.includes(hwid)) {
+        log.readBy.push(hwid);
+      }
     }
   }
 
   res.json({
     success: true,
-    message: "Notification marked as read"
-  });
-});
-
-app.get("/notify", (req, res) => {
-  res.json({
-    success: true,
-    data: notifications
+    message: "Notification marked as read for user"
   });
 });
 
@@ -103,6 +122,8 @@ app.get("/notify/clear", (req, res) => {
     message: "Notifications cleared"
   });
 });
+
+/* ---------------- START ---------------- */
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
