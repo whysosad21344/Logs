@@ -24,11 +24,11 @@ app.post("/statcheck", (req, res) => {
 // GET endpoint to check if a username is stored and fetch stats
 app.get("/checkusername", (req, res) => {
     const { username } = req.query; // Get the username from the query string
-    if (usersData[username] && usersData[username].stats) {
+    if (usersData[username]) {
         res.json({
             success: true,
             message: `Username ${username} found`,
-            stats: usersData[username].stats // Send the stats for the found username
+            stats: usersData[username] // Send the stats for the found username
         });
     } else {
         res.json({ success: false, message: `Username ${username} not found` });
@@ -65,27 +65,7 @@ app.post("/confirmfound", (req, res) => {
     }
 });
 
-/* ---------------- DELETE USER STATS ---------------- */
-// DELETE endpoint to remove stats and username after sending the embed
-app.delete("/deletestats", (req, res) => {
-    const { username } = req.body;
-    if (username && usersData[username]) {
-        // Remove the stats for the username and delete the username entirely from the server
-        delete usersData[username].stats;
-        delete usersData[username]; // Remove the entire user from memory
-        console.log(`Deleted stats and removed username: ${username}`);
-        res.json({
-            success: true,
-            message: `Stats and username for ${username} have been deleted successfully.`
-        });
-    } else {
-        res.json({
-            success: false,
-            message: `Username ${username} not found or invalid.`
-        });
-    }
-});
-
+/* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
 });
