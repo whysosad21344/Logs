@@ -120,7 +120,8 @@ app.post("/userinfo", (req, res) => {
             exp_percentage: parseFloat(exp_percentage),
             money_percentage: parseFloat(money_percentage),
             gems_percentage: parseFloat(gems_percentage)
-        }
+        },
+        time: Date.now()  // Add timestamp to each log
     };
 
     userInfo.push(log);
@@ -129,7 +130,19 @@ app.post("/userinfo", (req, res) => {
 });
 
 app.get("/userinfo", (req, res) => {
-    res.json({ success: true, data: userInfo });
+    const username = req.query.username;
+
+    // Filter logs by username if provided, then sort by time (most recent first)
+    const filteredUserInfo = userInfo.filter(log => log.username === username);
+
+    if (filteredUserInfo.length > 0) {
+        // Sort by time to get the most recent entry first
+        const mostRecentLog = filteredUserInfo.sort((a, b) => b.time - a.time)[0];
+
+        res.json({ success: true, data: mostRecentLog });
+    } else {
+        res.json({ success: false, message: "No user info found for that username" });
+    }
 });
 
 app.get("/userinfo/clear", (req, res) => {
