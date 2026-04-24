@@ -91,6 +91,7 @@ app.get("/notify/clear", (req, res) => {
 app.post("/userinfo", (req, res) => {
     const {
         username,
+        time,
         damage_percentage,
         sword_damage_percentage,
         melee_damage_percentage,
@@ -121,7 +122,7 @@ app.post("/userinfo", (req, res) => {
             money_percentage: parseFloat(money_percentage),
             gems_percentage: parseFloat(gems_percentage)
         },
-        time: Date.now()  // Add timestamp to each log
+        time: time
     };
 
     userInfo.push(log);
@@ -130,19 +131,7 @@ app.post("/userinfo", (req, res) => {
 });
 
 app.get("/userinfo", (req, res) => {
-    const username = req.query.username;
-
-    // Filter logs by username if provided, then sort by time (most recent first)
-    const filteredUserInfo = userInfo.filter(log => log.username === username);
-
-    if (filteredUserInfo.length > 0) {
-        // Sort by time to get the most recent entry first
-        const mostRecentLog = filteredUserInfo.sort((a, b) => b.time - a.time)[0];
-
-        res.json({ success: true, data: mostRecentLog });
-    } else {
-        res.json({ success: false, message: "No user info found for that username" });
-    }
+    res.json({ success: true, data: userInfo });
 });
 
 app.get("/userinfo/clear", (req, res) => {
