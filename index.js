@@ -7,8 +7,10 @@ app.use(express.json()); // To parse incoming JSON payloads
 // In-memory storage for usernames and their associated stats
 let usersData = {};
 
+// Variable to store the latest update (could be a version, change, or any other string)
+let latestUpdate = "V1.0.0"; // Example initial version
+
 /* ---------------- STATCHECK ---------------- */
-// POST endpoint to receive usernames (from Discord or other sources)
 app.post("/statcheck", (req, res) => {
     const { username } = req.body; // Extract the username from the request body
     if (username && !usersData[username]) {
@@ -21,7 +23,6 @@ app.post("/statcheck", (req, res) => {
 });
 
 /* ---------------- CHECK USERNAME ---------------- */
-// GET endpoint to check if a username is stored and fetch stats
 app.get("/checkusername", (req, res) => {
     const { username } = req.query; // Get the username from the query string
     if (usersData[username]) {
@@ -41,11 +42,9 @@ app.get("/checkusername", (req, res) => {
 });
 
 /* ---------------- CONFIRM USER ---------------- */
-// POST endpoint to confirm the username found in the game and store stats
 app.post("/confirmfound", (req, res) => {
     const { username, message, stats } = req.body; // Extract username, message, and stats
     if (username && message && stats) {
-        // Log the confirmation message (could be "FOUND USER IN GAME" or other)
         console.log(`Confirmation received: ${username} - ${message}`);
 
         // Store stats for the user
@@ -54,7 +53,6 @@ app.post("/confirmfound", (req, res) => {
         }
         usersData[username].stats = stats; // Store the stats
 
-        // Log stats
         console.log("Stats received for user:", username);
         console.log(stats);
 
@@ -73,11 +71,9 @@ app.post("/confirmfound", (req, res) => {
 });
 
 /* ---------------- CLEAR USER DATA ---------------- */
-// POST endpoint to clear the data for a specific username and its stats
 app.post("/clearusername", (req, res) => {
     const { username } = req.body; // Extract the username from the request body
     if (username && usersData[username]) {
-        // Remove both username and stats from the in-memory data store
         delete usersData[username]; 
         console.log(`Data and stats for ${username} cleared from server.`);
         res.json({ success: true, message: `Data for ${username} cleared.` });
@@ -91,11 +87,9 @@ app.post("/clearusername", (req, res) => {
 app.post("/updatenotify", (req, res) => {
     const { updateData } = req.body; // Extract the update data from the request body
     if (updateData) {
-        // Log the received update
+        // Log the received update and store it
         console.log('Received update:', updateData);
-
-        // You can choose to store this update data in a variable or a more permanent storage solution later.
-        // For now, we can log it to the console.
+        latestUpdate = updateData; // Store the latest update (e.g., version)
 
         res.json({
             success: true,
@@ -109,6 +103,16 @@ app.post("/updatenotify", (req, res) => {
             dateTime: new Date().toISOString() // Include current date and time
         });
     }
+});
+
+/* ---------------- GET UPDATE ---------------- */
+// GET endpoint to retrieve the current update (e.g., version)
+app.get("/updatenotify", (req, res) => {
+    res.json({
+        success: true,
+        updateData: latestUpdate,  // Send the latest update (e.g., version)
+        dateTime: new Date().toISOString()  // Include current date and time
+    });
 });
 
 /* ---------------- START ---------------- */
