@@ -7,8 +7,8 @@ app.use(express.json()); // To parse incoming JSON payloads
 // In-memory storage for usernames and their associated stats
 let usersData = {};
 
-// Variable to store the latest update (could be a version, change, or any other string)
-let latestUpdate = "V1.0.0"; // Example initial version
+// Variable to store the latest update (this will be dynamically updated)
+let latestUpdate = ""; // Start with an empty string
 
 /* ---------------- STATCHECK ---------------- */
 app.post("/statcheck", (req, res) => {
@@ -103,6 +103,22 @@ app.post("/updatenotify", (req, res) => {
             dateTime: new Date().toISOString() // Include current date and time
         });
     }
+});
+
+/* ---------------- CLEAR UPDATE NOTIFY ---------------- */
+// New endpoint to clear update data after a certain time
+app.post("/clearupdatenotify", (req, res) => {
+    // Reset the latest update variable after a 10-second delay
+    setTimeout(() => {
+        console.log('Clearing update data...');
+        latestUpdate = ""; // Clear the update data
+
+        res.json({
+            success: true,
+            message: "Update data cleared successfully",
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    }, 10000); // Wait 10 seconds before clearing
 });
 
 /* ---------------- GET UPDATE ---------------- */
