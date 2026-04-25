@@ -86,6 +86,31 @@ app.post("/clearusername", (req, res) => {
     }
 });
 
+/* ---------------- UPDATE NOTIFY ---------------- */
+// POST endpoint to receive updates (can be used later for reading)
+app.post("/updatenotify", (req, res) => {
+    const { updateData } = req.body; // Extract the update data from the request body
+    if (updateData) {
+        // Log the received update
+        console.log('Received update:', updateData);
+
+        // You can choose to store this update data in a variable or a more permanent storage solution later.
+        // For now, we can log it to the console.
+
+        res.json({
+            success: true,
+            message: "Update received successfully",
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    } else {
+        res.json({
+            success: false,
+            message: "No update data received",
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    }
+});
+
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
