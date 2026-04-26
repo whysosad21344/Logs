@@ -149,10 +149,15 @@ app.post("/guildcheck", (req, res) => {
 
 /* ---------------- GUILDDATA ---------------- */
 app.post("/guilddata", (req, res) => {
-    const { userId, username, playtime, contribution, bounty } = req.body; // Extract guild data from the request body
+    // Extract guild data from the request body
+    const { userId, username, playtime, contribution, bounty } = req.body;
 
+    // Log the entire request body for debugging purposes
+    console.log('Received guild data:', req.body); 
+
+    // Check if all required data fields are present
     if (userId && username && playtime !== undefined && contribution !== undefined && bounty !== undefined) {
-        // Log the received guild data
+        // Log the received data if all fields are present
         console.log(`Received guild data for userId: ${userId}`);
         console.log(`Username: ${username}`);
         console.log(`Playtime: ${playtime} minutes`);
@@ -171,10 +176,19 @@ app.post("/guilddata", (req, res) => {
             dateTime: new Date().toISOString() // Include current date and time
         });
     } else {
-        // Respond with an error if data is missing
+        // If any required data is missing, log the missing field and return an error response
+        let missingFields = [];
+        if (!userId) missingFields.push('userId');
+        if (!username) missingFields.push('username');
+        if (playtime === undefined) missingFields.push('playtime');
+        if (contribution === undefined) missingFields.push('contribution');
+        if (bounty === undefined) missingFields.push('bounty');
+
+        console.log('Error: Missing fields:', missingFields.join(', '));
+
         res.json({
             success: false,
-            message: "Incomplete guild data received.",
+            message: `Incomplete guild data received. Missing fields: ${missingFields.join(', ')}`,
             dateTime: new Date().toISOString() // Include current date and time
         });
     }
