@@ -4,9 +4,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // To parse incoming JSON payloads
 
-// In-memory storage for usernames, stats, and guilds
+// Global variables for storing data
 let usersData = {};
 let guildData = {};  // New in-memory storage for guild data
+let latestUserID = null; // Store the latest userID
+let confirmedData = null; // Store the confirmed data
 let latestUpdate = ""; // Variable to store the latest update
 
 /* ---------------- STATCHECK ---------------- */
@@ -171,7 +173,7 @@ app.post("/guilddataconfirmed", (req, res) => {
 app.get("/guilddataconfirmed", (req, res) => {
     // Return the latest confirmed data if available
     if (confirmedData) {
-        res.send(`Latest GuildDataConfirmed: UserID = ${confirmedData.userID}, Data = ${confirmedData.confirmationData}`);
+        res.send(`Latest GuildDataConfirmed: UserID = ${confirmedData.userID}, Data = ${JSON.stringify(confirmedData.confirmationData)}`);
     } else {
         res.send('No GuildDataConfirmed yet. Please send a POST request first.');
     }
