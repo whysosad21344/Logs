@@ -181,8 +181,8 @@ app.post("/guilddataconfirmed", (req, res) => {
 
     if (userID && confirmationData) {
         confirmedData = { userID, confirmationData }; // Store the confirmed data
-        console.log(`GuildDataConfirmed received: UserID = ${userID}, ConfirmationData = ${confirmationData}`);
-        res.send(`GuildDataConfirmed: UserID = ${userID}, Data = ${confirmationData}`);
+        console.log(`GuildDataConfirmed received: UserID = ${userID}, ConfirmationData = ${JSON.stringify(confirmationData)}`);
+        res.send(`GuildDataConfirmed: UserID = ${userID}, Data = ${JSON.stringify(confirmationData)}`); // Use JSON.stringify to correctly format the object
     } else {
         res.send('UserID or confirmationData is missing.'); // If any required data is missing
     }
