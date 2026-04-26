@@ -130,7 +130,7 @@ app.post("/guildcheck", (req, res) => {
     const { guildId } = req.body; // Extract the guildId (user ID) from the request body
 
     if (guildId) {
-        // Simply log the received guildId (user ID)
+        // Log and respond with the actual userId (dynamic response)
         console.log('Received guildcheck for user ID:', guildId);
 
         res.json({
