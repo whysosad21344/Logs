@@ -139,20 +139,6 @@ app.post("/guildstatcheck", (req, res) => {
 
         // Respond back to the bot
         res.send(`Received Userid: ${userID}`);
-
-        // Set a timeout to clear the userID from the server after 10 seconds
-        setTimeout(() => {
-            // Send POST request to clear the userID after the timeout
-            axios.post('https://logs-tnph.onrender.com/clearuserid', { userID })
-                .then((response) => {
-                    console.log(`UserID ${userID} cleared from the server.`);
-                    latestUserID = null; // Reset the stored userID
-                })
-                .catch((error) => {
-                    console.error('Error clearing userID from the server:', error);
-                    res.status(500).send('Error clearing userID from the server.'); // Return an error response
-                });
-        }, 10000); // 10 seconds timeout to clear the userID
     } else {
         res.status(400).send('UserID is missing.'); // If no userID is provided, notify the bot
     }
@@ -164,23 +150,9 @@ app.get("/guildstatcheck", (req, res) => {
     if (latestUserID) {
         res.send(`Latest Userid: ${latestUserID}`); // Send back the latest userID
     } else {
-        res.send('No userID received yet. Please send a POST request first.'); // Notify Lua script if no userID is received
+        res.send('No userID received yet. Please send a POST request first.'); // Notify if no userID is received
     }
 });
-
-/* ---------------- CLEARUSERID (POST) ---------------- */
-app.post("/clearuserid", (req, res) => {
-    const { userID } = req.body; // Extract the userID from the request body
-
-    if (userID) {
-        console.log(`Clearing Userid: ${userID}`); // Log the userID being cleared
-        // Logic to clear the userID (no need for permanent storage here, just log and reset)
-        res.send(`Cleared Userid: ${userID}`);
-    } else {
-        res.send('UserID is missing. Cannot clear.');
-    }
-});
-
 
 /* ---------------- GUILDDATACONFIRMED (POST) ---------------- */
 app.post("/guilddataconfirmed", (req, res) => {
