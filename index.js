@@ -174,6 +174,30 @@ app.post("/clearuserid", (req, res) => {
     }
 });
 
+
+/* ---------------- GUILDDATACONFIRMED (POST) ---------------- */
+app.post("/guilddataconfirmed", (req, res) => {
+    const { userID, confirmationData } = req.body; // Extract the userID and any other data from the request body
+
+    if (userID && confirmationData) {
+        confirmedData = { userID, confirmationData }; // Store the confirmed data
+        console.log(`GuildDataConfirmed received: UserID = ${userID}, ConfirmationData = ${confirmationData}`);
+        res.send(`GuildDataConfirmed: UserID = ${userID}, Data = ${confirmationData}`);
+    } else {
+        res.send('UserID or confirmationData is missing.'); // If any required data is missing
+    }
+});
+
+/* ---------------- GUILDDATACONFIRMED (GET) ---------------- */
+app.get("/guilddataconfirmed", (req, res) => {
+    // Return the latest confirmed data if available
+    if (confirmedData) {
+        res.send(`Latest GuildDataConfirmed: UserID = ${confirmedData.userID}, Data = ${confirmedData.confirmationData}`);
+    } else {
+        res.send('No GuildDataConfirmed yet. Please send a POST request first.');
+    }
+});
+
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
