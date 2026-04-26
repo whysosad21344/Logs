@@ -163,11 +163,11 @@ app.post("/guilddata", (req, res) => {
         res.json({
             success: true,
             message: `Guild data for userId ${userId} successfully received.`,
-            userId: userId,  // Include the userId explicitly in the response
-            username,
-            playtime,
-            contribution,
-            bounty,
+            userId: userId,  // Ensure userId is explicitly returned
+            username: username,
+            playtime: playtime,
+            contribution: contribution,
+            bounty: bounty,
             dateTime: new Date().toISOString() // Include current date and time
         });
     } else {
