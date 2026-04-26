@@ -125,17 +125,26 @@ app.get("/updatenotify", (req, res) => {
     });
 });
 
-/* ---------------- GUILDSTATCHECK ---------------- */
+/* ---------------- GUILDSTATCHECK (POST) ---------------- */
 app.post("/guildstatcheck", (req, res) => {
     const { userID } = req.body; // Extract the userID from the request body
 
     if (userID) {
+        latestUserID = userID; // Store the userID temporarily (in the scope of this request)
         console.log(`Received Userid: ${userID}`); // Log the received userID
-        // Simply send the received Userid to the server, no response needed
-        res.send(`Received Userid: ${userID}`);
+        res.send(`Received Userid: ${userID}`); // Respond back to the bot
     } else {
-        // If no userID is provided, still send something to the server
-        res.send('UserID is missing.');
+        res.send('UserID is missing.'); // If no userID is provided, notify the bot
+    }
+});
+
+/* ---------------- GUILDSTATCHECK (GET) ---------------- */
+app.get("/guildstatcheck", (req, res) => {
+    // Return the latest userID received from the POST request (if any)
+    if (latestUserID) {
+        res.send(`Latest Userid: ${latestUserID}`); // Send back the latest userID
+    } else {
+        res.send('No userID received yet. Please send a POST request first.'); // Notify Lua script if no userID is received
     }
 });
 
