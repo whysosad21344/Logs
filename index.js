@@ -178,20 +178,21 @@ app.post("/clearguildstatcheck", (req, res) => {
 
 /* ---------------- GUILDDATACONFIRMED (POST) ---------------- */
 app.post("/guilddataconfirmed", (req, res) => {
-  const { userID, confirmationData } = req.body; // Extract the userID and any other data from the request body
+  const { userID, confirmationData } = req.body; // Extract the userID and confirmationData from the request body
+
   if (userID && confirmationData) {
-    confirmedData = { userID, confirmationData }; // Store the confirmed data
+    confirmedData = { userID, confirmationData }; // Store the confirmed data, including userID
     console.log(`GuildDataConfirmed received: UserID = ${userID}, ConfirmationData = ${JSON.stringify(confirmationData)}`);
-    res.send(`GuildDataConfirmed: UserID = ${userID}, Data = ${JSON.stringify(confirmationData)}`); // Use JSON.stringify to correctly format the object
+    res.send(`GuildDataConfirmed: UserID = ${userID}, Data = ${JSON.stringify(confirmationData)}`); // Send response back with userID and confirmation data
   } else {
-    res.send('UserID or confirmationData is missing.'); // If any required data is missing
+    res.send('UserID or confirmationData is missing.'); // If either userID or confirmationData is missing
   }
 });
 
 /* ---------------- GUILDDATACONFIRMED (GET) ---------------- */
 app.get("/guilddataconfirmed", (req, res) => {
   if (confirmedData) {
-    // Return the latest confirmed data as JSON (directly as an object, not a string)
+    // Return the latest confirmed data (including userID and confirmationData)
     res.json({ userID: confirmedData.userID, confirmationData: confirmedData.confirmationData });
   } else {
     res.json({ message: 'No GuildDataConfirmed yet. Please send a POST request first.' });
