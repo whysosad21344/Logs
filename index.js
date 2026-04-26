@@ -159,10 +159,14 @@ app.post("/guilddata", (req, res) => {
         console.log(`Contribution: ${contribution}`);
         console.log(`Bounty: ${bounty}`);
 
-        // Respond with a success message
+        // Respond with the guild data along with the success message
         res.json({
             success: true,
             message: `Guild data for userId ${userId} successfully received.`,
+            username,
+            playtime,
+            contribution,
+            bounty,
             dateTime: new Date().toISOString() // Include current date and time
         });
     } else {
