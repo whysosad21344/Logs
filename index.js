@@ -125,97 +125,17 @@ app.get("/updatenotify", (req, res) => {
     });
 });
 
-/* ---------------- GUILDCHECK ---------------- */
-app.post("/guildcheck", (req, res) => {
-    const { guildId } = req.body; // Extract the guildId (user ID) from the request body
+/* ---------------- GUILDSTATCHECK ---------------- */
+app.post("/guildstatcheck", (req, res) => {
+    const { userID } = req.body; // Extract the userID from the request body
 
-    if (guildId) {
-        // Log and respond with the actual userId (dynamic response)
-        console.log('Received guildcheck for user ID:', guildId);
-
-        res.json({
-            success: true,
-            message: `Received guildcheck for userId ${guildId}`,
-            dateTime: new Date().toISOString() // Include current date and time
-        });
+    if (userID) {
+        console.log(`Received Userid: ${userID}`); // Log the received userID
+        // Simply send the received Userid to the server, no response needed
+        res.send(`Received Userid: ${userID}`);
     } else {
-        res.json({
-            success: false,
-            message: "No userId (guildId) received",
-            dateTime: new Date().toISOString() // Include current date and time
-        });
-    }
-});
-
-/* ---------------- GUILDDATA ---------------- */
-app.post("/guilddata", (req, res) => {
-    // Extract guild data from the request body
-    const { userId, username, playtime, contribution, bounty } = req.body;
-
-    // Log the entire request body for debugging purposes
-    console.log('Received guild data:', req.body);
-
-    // Check if all required data fields are present
-    if (userId && username && playtime !== undefined && contribution !== undefined && bounty !== undefined) {
-        // Log the received data if all fields are present
-        console.log(`Received guild data for userId: ${userId}`);
-        console.log(`Username: ${username}`);
-        console.log(`Playtime: ${playtime} minutes`);
-        console.log(`Contribution: ${contribution}`);
-        console.log(`Bounty: ${bounty}`);
-
-        // Respond with the guild data along with the success message
-        res.json({
-            success: true,
-            message: `Guild data for userId ${userId} successfully received.`,
-            userId: userId,  // Ensure userId is explicitly returned
-            username: username,
-            playtime: playtime,
-            contribution: contribution,
-            bounty: bounty,
-            dateTime: new Date().toISOString() // Include current date and time
-        });
-    } else {
-        // If any required data is missing, log the missing field and return an error response
-        let missingFields = [];
-        if (!userId) missingFields.push('userId');
-        if (!username) missingFields.push('username');
-        if (playtime === undefined) missingFields.push('playtime');
-        if (contribution === undefined) missingFields.push('contribution');
-        if (bounty === undefined) missingFields.push('bounty');
-
-        console.log('Error: Missing fields:', missingFields.join(', '));
-
-        res.json({
-            success: false,
-            message: `Incomplete guild data received. Missing fields: ${missingFields.join(', ')}`,
-            dateTime: new Date().toISOString() // Include current date and time
-        });
-    }
-});
-
-
-/* ---------------- CLEARGUILDDATA ---------------- */
-app.post("/clearguilddata", (req, res) => {
-    const { userId } = req.body; // Extract the userId from the request body
-
-    if (userId) {
-        console.log(`Clearing guild data for userId: ${userId}`);
-
-        // Logic to clear the guild data for the specific userId
-        // This could be resetting in-memory data, clearing a database record, etc.
-
-        res.json({
-            success: true,
-            message: `Guild data for userId ${userId} cleared.`,
-            dateTime: new Date().toISOString() // Include current date and time
-        });
-    } else {
-        res.json({
-            success: false,
-            message: "No userId received to clear data",
-            dateTime: new Date().toISOString() // Include current date and time
-        });
+        // If no userID is provided, still send something to the server
+        res.send('UserID is missing.');
     }
 });
 
