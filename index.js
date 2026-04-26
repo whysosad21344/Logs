@@ -125,14 +125,20 @@ app.get("/updatenotify", (req, res) => {
     });
 });
 
-/* ---------------- GUILDSTATCHECK (POST) ---------------- */
+// Ensure axios is required at the top of your file
+const axios = require('axios');
+
+// ---------------- GUILDSTATCHECK (POST) ----------------
 app.post("/guildstatcheck", (req, res) => {
     const { userID } = req.body; // Extract the userID from the request body
 
     if (userID) {
-        latestUserID = userID; // Store the userID temporarily (in the scope of this request)
+        // Store the userID temporarily (in the scope of this request)
+        latestUserID = userID;
         console.log(`Received Userid: ${userID}`); // Log the received userID
-        res.send(`Received Userid: ${userID}`); // Respond back to the bot
+
+        // Respond back to the bot
+        res.send(`Received Userid: ${userID}`);
 
         // Set a timeout to clear the userID from the server after 10 seconds
         setTimeout(() => {
@@ -144,10 +150,11 @@ app.post("/guildstatcheck", (req, res) => {
                 })
                 .catch((error) => {
                     console.error('Error clearing userID from the server:', error);
+                    res.status(500).send('Error clearing userID from the server.'); // Return an error response
                 });
         }, 10000); // 10 seconds timeout to clear the userID
     } else {
-        res.send('UserID is missing.'); // If no userID is provided, notify the bot
+        res.status(400).send('UserID is missing.'); // If no userID is provided, notify the bot
     }
 });
 
