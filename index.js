@@ -129,12 +129,28 @@ app.get("/updatenotify", (req, res) => {
 // POST endpoint to receive guild ID
 app.post("/guildcheck", (req, res) => {
     const { guildId } = req.body; // Extract the guildId from the request body
-    if (guildId && !guildData[guildId]) {
-        guildData[guildId] = {}; // Initialize an empty guild object for this guildId
-        console.log('Received guild ID:', guildId);
-        res.json({ success: true, message: "Guild data received successfully", dateTime: new Date().toISOString() });
+    if (guildId) {
+        if (!guildData[guildId]) {
+            guildData[guildId] = {}; // Initialize an empty guild object for this guildId
+            console.log(`Received guild ID: ${guildId}`);
+            res.json({
+                success: true,
+                message: "Guild data received successfully",
+                dateTime: new Date().toISOString()
+            });
+        } else {
+            res.json({
+                success: false,
+                message: `Guild ID ${guildId} already received`,
+                dateTime: new Date().toISOString()
+            });
+        }
     } else {
-        res.json({ success: false, message: "Guild ID already received or invalid", dateTime: new Date().toISOString() });
+        res.json({
+            success: false,
+            message: "No guild ID provided",
+            dateTime: new Date().toISOString()
+        });
     }
 });
 
@@ -165,7 +181,11 @@ app.post("/clearguild", (req, res) => {
         console.log(`Guild data for guild ID ${guildId} cleared.`);
         res.json({ success: true, message: `Guild data for guild ID ${guildId} cleared.` });
     } else {
-        res.json({ success: false, message: `Guild ID ${guildId} not found or already cleared.` });
+        res.json({
+            success: false,
+            message: `Guild ID ${guildId} not found or already cleared.`,
+            dateTime: new Date().toISOString()  // Include current date and time
+        });
     }
 });
 
