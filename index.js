@@ -130,7 +130,7 @@ app.get("/updatenotify", (req, res) => {
 app.post("/guildcheck", (req, res) => {
     const { guildId } = req.body; // Extract the guildId from the request body
     if (guildId) {
-        console.log(`Received guild ID: ${guildId}`);  // Just log the received guild ID
+        console.log(`Received guild ID: ${guildId}`);  // Log the received guild ID
         res.json({
             success: true,
             message: `Guild ID ${guildId} received successfully`, // Confirm receipt of guildId
@@ -148,17 +148,26 @@ app.post("/guildcheck", (req, res) => {
 // GET endpoint to check guild data
 app.get("/checkguild", (req, res) => {
     const { guildId } = req.query; // Get the guildId from the query string
-    if (guildData[guildId]) {
-        res.json({
-            success: true,
-            message: `Guild data for guild ID ${guildId} found`,
-            guildData: guildData[guildId], // Send the guild data
-            dateTime: new Date().toISOString()  // Include current date and time
-        });
+    if (guildId) {
+        console.log(`Checking for guild ID: ${guildId}`); // Log the guildId being checked
+        if (guildData[guildId]) {
+            res.json({
+                success: true,
+                message: `Guild data for guild ID ${guildId} found`,
+                guildData: guildData[guildId], // Send the guild data if found
+                dateTime: new Date().toISOString()  // Include current date and time
+            });
+        } else {
+            res.json({
+                success: false,
+                message: `Guild data for guild ID ${guildId} not found`,
+                dateTime: new Date().toISOString()  // Include current date and time
+            });
+        }
     } else {
         res.json({
             success: false,
-            message: `Guild data for guild ID ${guildId} not found`,
+            message: "No guild ID provided", // Handle case where no guildId is provided
             dateTime: new Date().toISOString()  // Include current date and time
         });
     }
