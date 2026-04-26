@@ -147,6 +147,34 @@ app.post("/guildcheck", (req, res) => {
     }
 });
 
+/* ---------------- GUILDDATA ---------------- */
+app.post("/guilddata", (req, res) => {
+    const { userId, username, playtime, contribution, bounty } = req.body; // Extract guild data from the request body
+
+    if (userId && username && playtime !== undefined && contribution !== undefined && bounty !== undefined) {
+        // Log the received guild data
+        console.log(`Received guild data for userId: ${userId}`);
+        console.log(`Username: ${username}`);
+        console.log(`Playtime: ${playtime} minutes`);
+        console.log(`Contribution: ${contribution}`);
+        console.log(`Bounty: ${bounty}`);
+
+        // Respond with a success message
+        res.json({
+            success: true,
+            message: `Guild data for userId ${userId} successfully received.`,
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    } else {
+        // Respond with an error if data is missing
+        res.json({
+            success: false,
+            message: "Incomplete guild data received.",
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    }
+});
+
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
