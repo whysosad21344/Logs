@@ -153,7 +153,7 @@ app.post("/guilddata", (req, res) => {
     const { userId, username, playtime, contribution, bounty } = req.body;
 
     // Log the entire request body for debugging purposes
-    console.log('Received guild data:', req.body); 
+    console.log('Received guild data:', req.body);
 
     // Check if all required data fields are present
     if (userId && username && playtime !== undefined && contribution !== undefined && bounty !== undefined) {
@@ -193,6 +193,7 @@ app.post("/guilddata", (req, res) => {
         });
     }
 });
+
 
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
