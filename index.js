@@ -130,6 +130,10 @@ app.get("/updatenotify", (req, res) => {
 // Ensure axios is required at the top of your file
 const axios = require('axios');
 
+// In-memory storage for latest userID and confirmed data
+let latestUserID = null;
+let confirmedData = null;
+
 // ---------------- GUILDSTATCHECK (POST) ----------------
 app.post("/guildstatcheck", (req, res) => {
     const { userID } = req.body; // Extract the userID from the request body
@@ -140,9 +144,9 @@ app.post("/guildstatcheck", (req, res) => {
         console.log(`Received Userid: ${userID}`); // Log the received userID
 
         // Respond back to the bot
-        res.send(`Received Userid: ${userID}`);
+        res.json({ success: true, message: `Received Userid: ${userID}`, userID });
     } else {
-        res.status(400).send('UserID is missing.'); // If no userID is provided, notify the bot
+        res.status(400).json({ success: false, message: 'UserID is missing.' }); // If no userID is provided, notify the bot
     }
 });
 
@@ -150,22 +154,24 @@ app.post("/guildstatcheck", (req, res) => {
 app.get("/guildstatcheck", (req, res) => {
     // Return the latest userID received from the POST request (if any)
     if (latestUserID) {
-        res.send(`Latest Userid: ${latestUserID}`); // Send back the latest userID
+        res.json({ success: true, latestUserID });
     } else {
-        res.send('No userID received yet. Please send a POST request first.'); // Notify if no userID is received
+        res.status(404).json({ success: false, message: 'No userID received yet. Please send a POST request first.' });
     }
 });
 
 /* ---------------- GUILDDATACONFIRMED (POST) ---------------- */
 app.post("/guilddataconfirmed", (req, res) => {
-    const { userID, confirmationData } = req.body; // Extract the userID and any other data from the request body
+    const { userID, confirmationData } = req.body; // Extract the userID and confirmation data from the request body
 
     if (userID && confirmationData) {
-        confirmedData = { userID, confirmationData }; // Store the confirmed data
+        // Store the confirmed data
+        confirmedData = { userID, confirmationData };
         console.log(`GuildDataConfirmed received: UserID = ${userID}, ConfirmationData = ${JSON.stringify(confirmationData)}`);
-        res.send(`GuildDataConfirmed: UserID = ${userID}, Data = ${JSON.stringify(confirmationData)}`); // Use JSON.stringify to correctly format the object
+
+        res.json({ success: true, message: `GuildDataConfirmed: UserID = ${userID}, Data = ${JSON.stringify(confirmationData)}` });
     } else {
-        res.send('UserID or confirmationData is missing.'); // If any required data is missing
+        res.status(400).json({ success: false, message: 'UserID or confirmationData is missing.' });
     }
 });
 
@@ -173,9 +179,38 @@ app.post("/guilddataconfirmed", (req, res) => {
 app.get("/guilddataconfirmed", (req, res) => {
     // Return the latest confirmed data if available
     if (confirmedData) {
-        res.send(`Latest GuildDataConfirmed: UserID = ${confirmedData.userID}, Data = ${JSON.stringify(confirmedData.confirmationData)}`);
+        res.json({
+            success: true,
+            userID: confirmedData.userID,
+            confirmationData: confirmedData.confirmationData
+        });
     } else {
-        res.send('No GuildDataConfirmed yet. Please send a POST request first.');
+        res.status(404).json({ success: false, message: 'No GuildDataConfirmed yet. Please send a POST request first.' });
+    }
+});
+
+/* ---------------- CLEAR USERID (POST) ---------------- */
+app.post("/clearuserid", (req, res) => {
+    const { userID } = req.body; // Extract the userID from the request body
+
+    if (userID) {
+        // Clear the latestUserID from the server
+        if (latestUserID === userID) {
+            latestUserID = null; // Clear the stored userID
+            console.log(`UserID ${userID} cleared from server.`);
+
+            // Also clear the confirmed data if it's for the same user
+            if (confirmedData && confirmedData.userID === userID) {
+                confirmedData = null;
+                console.log(`Confirmed data for UserID ${userID} cleared.`);
+            }
+
+            res.json({ success: true, message: `UserID ${userID} cleared from server.` });
+        } else {
+            res.status(400).json({ success: false, message: `UserID ${userID} not found on server.` });
+        }
+    } else {
+        res.status(400).json({ success: false, message: 'UserID is missing.' });
     }
 });
 
