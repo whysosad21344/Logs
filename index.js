@@ -173,11 +173,11 @@ app.post("/guilddataconfirmed", (req, res) => {
 
 /* ---------------- GUILDDATACONFIRMED (GET) ---------------- */
 app.get("/guilddataconfirmed", (req, res) => {
-  // Return the latest confirmed data if available
   if (confirmedData) {
-    res.send(`Latest GuildDataConfirmed: UserID = ${confirmedData.userID}, Data = ${confirmedData.confirmationData}`);
+    // Return the latest confirmed data as JSON (directly as an object, not a string)
+    res.json({ userID: confirmedData.userID, confirmationData: confirmedData.confirmationData });
   } else {
-    res.send('No GuildDataConfirmed yet. Please send a POST request first.');
+    res.json({ message: 'No GuildDataConfirmed yet. Please send a POST request first.' });
   }
 });
 
