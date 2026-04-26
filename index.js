@@ -125,7 +125,27 @@ app.get("/updatenotify", (req, res) => {
     });
 });
 
+/* ---------------- GUILDCHECK ---------------- */
+app.post("/guildcheck", (req, res) => {
+    const { guildId } = req.body; // Extract the guildId (user ID) from the request body
 
+    if (guildId) {
+        // Simply log the received guildId (user ID)
+        console.log('Received guildcheck for user ID:', guildId);
+
+        res.json({
+            success: true,
+            message: `Received guildcheck for userId ${guildId}`,
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    } else {
+        res.json({
+            success: false,
+            message: "No userId (guildId) received",
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    }
+});
 
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
