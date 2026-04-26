@@ -7,8 +7,6 @@ app.use(express.json()); // To parse incoming JSON payloads
 // Global variables for storing data
 let usersData = {};
 let guildData = {};  // New in-memory storage for guild data
-let latestUserID = null; // Store the latest userID
-let confirmedData = null; // Store the confirmed data
 let latestUpdate = ""; // Variable to store the latest update
 
 /* ---------------- STATCHECK ---------------- */
