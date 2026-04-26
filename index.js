@@ -189,6 +189,43 @@ app.post("/clearguild", (req, res) => {
     }
 });
 
+/* ---------------- GUILDCHECK ---------------- */
+app.get("/checkguild", (req, res) => {
+    const { userId } = req.query; // Get the user ID from the query string
+    if (!userId) {
+        return res.json({
+            success: false,
+            message: "No user ID provided",
+            dateTime: new Date().toISOString()  // Include current date and time
+        });
+    }
+
+    // Simulate checking for guild membership based on user ID
+    // In a real scenario, this would query a database or external API
+    const guilds = {
+        "12345": { guildName: "Knights of Code", role: "Leader" },
+        "67890": { guildName: "Warriors of Code", role: "Member" },
+        // Add more users and guilds as needed
+    };
+
+    const userGuild = guilds[userId]; // Check if the user is part of any guild
+
+    if (userGuild) {
+        res.json({
+            success: true,
+            message: `User ${userId} is in guild: ${userGuild.guildName}`,
+            guild: userGuild,
+            dateTime: new Date().toISOString()  // Include current date and time
+        });
+    } else {
+        res.json({
+            success: false,
+            message: `User ${userId} is not in any guild`,
+            dateTime: new Date().toISOString()  // Include current date and time
+        });
+    }
+});
+
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
