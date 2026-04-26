@@ -3,9 +3,20 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",          // Use node to start the server
+    "dev": "nodemon index.js"          // Use nodemon for auto-reloading during development
   },
   "dependencies": {
-    "express": "^4.18.0"
-  }
+    "express": "^4.18.0",              // Ensure express is up-to-date
+    "axios": "^0.27.2"                 // Add axios to make HTTP requests
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"               // Add nodemon for auto-reloading during development
+  },
+  "engines": {
+    "node": ">=14.0.0"                 // Specify required Node.js version
+  },
+  "author": "Your Name",               // Replace with your name
+  "license": "MIT",                    // License type (you can change it to another if needed)
+  "description": "A simple express server to test and handle guild stats."
 }
