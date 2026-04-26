@@ -50,15 +50,27 @@ app.get("/checkusername", (req, res) => {
 
 /* ---------------- CONFIRM USER ---------------- */
 app.post("/confirmfound", (req, res) => {
-  const { username, message, stats } = req.body; // Extract username, message, and stats
+  const { username, message, stats, currentClan, currentBloodline, hakiColor, equippedTitle, totalBossKills, totalItemDrops, trait } = req.body; // Extract username, message, and stats
+
   if (username && message && stats) {
     console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
     if (!usersData[username]) {
       usersData[username] = {}; // Initialize if not already present
     }
+
+    // Store the stats along with the new attributes
     usersData[username].stats = stats; // Store the stats
+    usersData[username].currentClan = currentClan; // Store the current clan
+    usersData[username].currentBloodline = currentBloodline; // Store the current bloodline
+    usersData[username].hakiColor = hakiColor; // Store the haki color
+    usersData[username].equippedTitle = equippedTitle; // Store the equipped title
+    usersData[username].totalBossKills = totalBossKills; // Store the total boss kills
+    usersData[username].totalItemDrops = totalItemDrops; // Store the total item drops
+    usersData[username].trait = trait; // Store the trait
+
     console.log("Stats received for user:", username);
     console.log(stats);
+
     res.json({
       success: true,
       message: "Confirmation and stats received successfully",
