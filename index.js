@@ -163,6 +163,7 @@ app.post("/guilddata", (req, res) => {
         res.json({
             success: true,
             message: `Guild data for userId ${userId} successfully received.`,
+            userId: userId,  // Include the userId explicitly in the response
             username,
             playtime,
             contribution,
