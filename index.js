@@ -159,6 +159,23 @@ app.get("/guildstatcheck", (req, res) => {
   }
 });
 
+/* ---------------- CLEAR GUILD STATCHECK ---------------- */
+app.post("/clearguildstatcheck", (req, res) => {
+  if (latestUserID) {
+    latestUserID = null; // Clear the stored userID
+    console.log('GuildStatCheck data cleared.');
+    res.json({
+      success: true,
+      message: 'GuildStatCheck data cleared.'
+    });
+  } else {
+    res.json({
+      success: false,
+      message: 'No GuildStatCheck data to clear.'
+    });
+  }
+});
+
 /* ---------------- GUILDDATACONFIRMED (POST) ---------------- */
 app.post("/guilddataconfirmed", (req, res) => {
   const { userID, confirmationData } = req.body; // Extract the userID and any other data from the request body
@@ -178,6 +195,23 @@ app.get("/guilddataconfirmed", (req, res) => {
     res.json({ userID: confirmedData.userID, confirmationData: confirmedData.confirmationData });
   } else {
     res.json({ message: 'No GuildDataConfirmed yet. Please send a POST request first.' });
+  }
+});
+
+/* ---------------- CLEAR GUILD DATACONFIRMED ---------------- */
+app.post("/clearguilddataconfirmed", (req, res) => {
+  if (confirmedData) {
+    confirmedData = null; // Clear the stored confirmed data
+    console.log('GuildDataConfirmed data cleared.');
+    res.json({
+      success: true,
+      message: 'GuildDataConfirmed data cleared.'
+    });
+  } else {
+    res.json({
+      success: false,
+      message: 'No GuildDataConfirmed data to clear.'
+    });
   }
 });
 
