@@ -130,26 +130,17 @@ app.get("/updatenotify", (req, res) => {
 app.post("/guildcheck", (req, res) => {
     const { guildId } = req.body; // Extract the guildId from the request body
     if (guildId) {
-        if (!guildData[guildId]) {
-            guildData[guildId] = {}; // Initialize an empty guild object for this guildId
-            console.log(`Received guild ID: ${guildId}`);
-            res.json({
-                success: true,
-                message: "Guild data received successfully",
-                dateTime: new Date().toISOString()
-            });
-        } else {
-            res.json({
-                success: false,
-                message: `Guild ID ${guildId} already received`,
-                dateTime: new Date().toISOString()
-            });
-        }
+        console.log(`Received guild ID: ${guildId}`);  // Just log the received guild ID
+        res.json({
+            success: true,
+            message: `Guild ID ${guildId} received successfully`, // Confirm receipt of guildId
+            dateTime: new Date().toISOString() // Include current date and time
+        });
     } else {
         res.json({
             success: false,
-            message: "No guild ID provided",
-            dateTime: new Date().toISOString()
+            message: "No guild ID provided", // Handle case where no guildId is provided
+            dateTime: new Date().toISOString()  // Include current date and time
         });
     }
 });
