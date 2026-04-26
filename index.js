@@ -195,6 +195,30 @@ app.post("/guilddata", (req, res) => {
 });
 
 
+/* ---------------- CLEARGUILDDATA ---------------- */
+app.post("/clearguilddata", (req, res) => {
+    const { userId } = req.body; // Extract the userId from the request body
+
+    if (userId) {
+        console.log(`Clearing guild data for userId: ${userId}`);
+
+        // Logic to clear the guild data for the specific userId
+        // This could be resetting in-memory data, clearing a database record, etc.
+
+        res.json({
+            success: true,
+            message: `Guild data for userId ${userId} cleared.`,
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    } else {
+        res.json({
+            success: false,
+            message: "No userId received to clear data",
+            dateTime: new Date().toISOString() // Include current date and time
+        });
+    }
+});
+
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
     console.log(`🚀 Statcheck server running on port ${PORT}`);
