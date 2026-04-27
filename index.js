@@ -50,7 +50,7 @@ app.get("/checkusername", (req, res) => {
 
 /* ---------------- CONFIRM USER ---------------- */
 app.post("/confirmfound", (req, res) => {
-  const { username, message, stats } = req.body; // Extract username, message, and stats
+  const { username, message, stats, currentClan, currentBloodline, hakiColor, equippedTitle, totalBossKills, totalItemDrops, trait } = req.body; // Extract all relevant data
 
   if (username && message && stats) {
     console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
@@ -59,16 +59,39 @@ app.post("/confirmfound", (req, res) => {
       usersData[username] = {}; // Initialize if not already present
     }
     usersData[username].stats = stats; // Store the stats
+    usersData[username].currentClan = currentClan;
+    usersData[username].currentBloodline = currentBloodline;
+    usersData[username].hakiColor = hakiColor;
+    usersData[username].equippedTitle = equippedTitle;
+    usersData[username].totalBossKills = totalBossKills;
+    usersData[username].totalItemDrops = totalItemDrops;
+    usersData[username].trait = trait;
 
-    console.log("Stats received for user:", username);
-    console.log(stats);  // Logs all the stats, including the new ones
+    console.log("Stats and additional data received for user:", username);
+    console.log({
+        stats: stats,
+        currentClan,
+        currentBloodline,
+        hakiColor,
+        equippedTitle,
+        totalBossKills,
+        totalItemDrops,
+        trait
+    });  // Log all received data
 
-    // Return the full stats back in the response
+    // Return the full stats and data back in the response
     res.json({
       success: true,
       message: "Confirmation and stats received successfully",
       dateTime: new Date().toISOString(), // Include current date and time
-      stats: stats  // Send the full stats object back
+      stats: stats,  // Send full stats
+      currentClan,
+      currentBloodline,
+      hakiColor,
+      equippedTitle,
+      totalBossKills,
+      totalItemDrops,
+      trait
     });
   } else {
     res.json({
