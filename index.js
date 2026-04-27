@@ -50,7 +50,20 @@ app.get("/checkusername", (req, res) => {
 
 /* ---------------- CONFIRM USER ---------------- */
 app.post("/confirmfound", (req, res) => {
-  const { username, message, stats, currentClan, currentBloodline, hakiColor, equippedTitle, totalBossKills, totalItemDrops, trait } = req.body; // Extract all relevant data
+  const { 
+    username, 
+    message, 
+    stats, 
+    currentClan, 
+    currentBloodline, 
+    hakiColor, 
+    equippedTitle, 
+    totalBossKills, 
+    totalItemDrops, 
+    trait,
+    maxHealth,  // New field for MaxHealth
+    runeEquipped  // New field for RuneEquipped
+  } = req.body; // Extract all relevant data including new fields
 
   if (username && message && stats) {
     console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
@@ -66,6 +79,8 @@ app.post("/confirmfound", (req, res) => {
     usersData[username].totalBossKills = totalBossKills;
     usersData[username].totalItemDrops = totalItemDrops;
     usersData[username].trait = trait;
+    usersData[username].maxHealth = maxHealth;  // Store MaxHealth
+    usersData[username].runeEquipped = runeEquipped;  // Store RuneEquipped
 
     console.log("Stats and additional data received for user:", username);
     console.log({
@@ -76,7 +91,9 @@ app.post("/confirmfound", (req, res) => {
         equippedTitle,
         totalBossKills,
         totalItemDrops,
-        trait
+        trait,
+        maxHealth,  // Log MaxHealth
+        runeEquipped  // Log RuneEquipped
     });  // Log all received data
 
     // Return the full stats and data back in the response
@@ -91,7 +108,9 @@ app.post("/confirmfound", (req, res) => {
       equippedTitle,
       totalBossKills,
       totalItemDrops,
-      trait
+      trait,
+      maxHealth,  // Include MaxHealth in the response
+      runeEquipped  // Include RuneEquipped in the response
     });
   } else {
     res.json({
