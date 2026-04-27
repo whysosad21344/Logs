@@ -50,37 +50,55 @@ app.get("/checkusername", (req, res) => {
 
 /* ---------------- CONFIRM USER ---------------- */
 app.post("/confirmfound", (req, res) => {
-  const { username, message, stats, currentClan, currentBloodline, hakiColor, equippedTitle, totalBossKills, totalItemDrops, trait } = req.body; // Extract username, message, and stats
+  try {
+    const { username, message, stats, currentClan, currentBloodline, hakiColor, equippedTitle, totalBossKills, totalItemDrops, trait } = req.body;
 
-  if (username && message && stats) {
-    console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
-    if (!usersData[username]) {
-      usersData[username] = {}; // Initialize if not already present
+    // Log the incoming request body for better debugging
+    console.log("Received body:", req.body);
+    
+    // Check if required fields are present
+    if (username && message && stats) {
+      console.log(`Confirmation received: ${username} - ${message}`);
+
+      // Initialize user data if not already present
+      if (!usersData[username]) {
+        usersData[username] = {}; // Initialize an empty object for the user if not already present
+      }
+
+      // Default missing values to ensure they are set correctly
+      usersData[username].stats = stats || {};  // Ensure stats are set even if undefined
+      usersData[username].currentClan = currentClan || "Not set";  // Default to "Not set" if not provided
+      usersData[username].currentBloodline = currentBloodline || "Not set";
+      usersData[username].hakiColor = hakiColor || "Not set";
+      usersData[username].equippedTitle = equippedTitle || "No title equipped";
+      usersData[username].totalBossKills = totalBossKills || 0;  // Default to 0 if not provided
+      usersData[username].totalItemDrops = totalItemDrops || 0;  // Default to 0 if not provided
+      usersData[username].trait = trait || "No trait";  // Default to "No trait" if not provided
+
+      console.log("Stats received for user:", username);
+      console.log("User stats:", usersData[username]);
+
+      // Respond back with success
+      res.json({
+        success: true,
+        message: "Confirmation and stats received successfully",
+        dateTime: new Date().toISOString()  // Include current date and time
+      });
+    } else {
+      // If any required field is missing
+      console.log("Invalid request: Missing required fields (username, message, or stats)");
+      res.json({
+        success: false,
+        message: "Invalid username, message, or stats",
+        dateTime: new Date().toISOString()  // Include current date and time
+      });
     }
-
-    // Store the stats along with the new attributes
-    usersData[username].stats = stats; // Store the stats
-    usersData[username].currentClan = currentClan; // Store the current clan
-    usersData[username].currentBloodline = currentBloodline; // Store the current bloodline
-    usersData[username].hakiColor = hakiColor; // Store the haki color
-    usersData[username].equippedTitle = equippedTitle; // Store the equipped title
-    usersData[username].totalBossKills = totalBossKills; // Store the total boss kills
-    usersData[username].totalItemDrops = totalItemDrops; // Store the total item drops
-    usersData[username].trait = trait; // Store the trait
-
-    console.log("Stats received for user:", username);
-    console.log(stats);
-
-    res.json({
-      success: true,
-      message: "Confirmation and stats received successfully",
-      dateTime: new Date().toISOString() // Include current date and time
-    });
-  } else {
-    res.json({
+  } catch (error) {
+    console.error("Error processing request:", error);
+    res.status(500).json({
       success: false,
-      message: "Invalid username, message, or stats",
-      dateTime: new Date().toISOString() // Include current date and time
+      message: "An error occurred while processing the request",
+      dateTime: new Date().toISOString(),  // Include current date and time
     });
   }
 });
