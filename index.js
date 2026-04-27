@@ -51,24 +51,30 @@ app.get("/checkusername", (req, res) => {
 /* ---------------- CONFIRM USER ---------------- */
 app.post("/confirmfound", (req, res) => {
   const { username, message, stats } = req.body; // Extract username, message, and stats
+
   if (username && message && stats) {
     console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
+
     if (!usersData[username]) {
       usersData[username] = {}; // Initialize if not already present
     }
     usersData[username].stats = stats; // Store the stats
+
     console.log("Stats received for user:", username);
-    console.log(stats);
+    console.log(stats);  // Logs all the stats, including the new ones
+
+    // Return the full stats back in the response
     res.json({
       success: true,
       message: "Confirmation and stats received successfully",
-      dateTime: new Date().toISOString() // Include current date and time
+      dateTime: new Date().toISOString(), // Include current date and time
+      stats: stats  // Send the full stats object back
     });
   } else {
     res.json({
       success: false,
       message: "Invalid username, message, or stats",
-      dateTime: new Date().toISOString() // Include current date and time
+      dateTime: new Date().toISOString(), // Include current date and time
     });
   }
 });
