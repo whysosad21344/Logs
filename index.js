@@ -1,30 +1,19 @@
 const express = require("express");
-const compression = require('compression');
-const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json()); // To parse incoming JSON payloads
-app.use(compression()); // Compress all responses automatically
-
-// Rate-limiting middleware
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per 15 minutes
-  message: "Too many requests, please try again later."
-});
-app.use(limiter);
 
 // In-memory storage for usernames, stats, and guilds
 let usersData = {};
-let cache = {}; // Simple cache for user data
+let guildData = {}; // New in-memory storage for guild data
 let latestUpdate = ""; // Variable to store the latest update
 
 /* ---------------- STATCHECK ---------------- */
 app.post("/statcheck", (req, res) => {
-  const { username } = req.body;
+  const { username } = req.body; // Extract the username from the request body
   if (username && !usersData[username]) {
-    usersData[username] = {}; // Initialize an empty stats object
+    usersData[username] = {}; // Initialize an empty stats object for this username
     console.log('Received username:', username); // Log the received username
     res.json({
       success: true,
@@ -42,46 +31,47 @@ app.post("/statcheck", (req, res) => {
 
 /* ---------------- CHECK USERNAME ---------------- */
 app.get("/checkusername", (req, res) => {
-  const { username } = req.query;
-
-  // Check cache first
-  if (cache[username]) {
-    return res.json({
-      success: true,
-      message: `Username ${username} found (cached)`,
-      stats: cache[username], // Return cached data
-    });
-  }
-
+  const { username } = req.query; // Get the username from the query string
   if (usersData[username]) {
-    // Cache the user stats for the next query
-    cache[username] = usersData[username].stats;
-    return res.json({
+    res.json({
       success: true,
       message: `Username ${username} found`,
-      stats: usersData[username].stats,
+      stats: usersData[username], // Send the stats for the found username
+      dateTime: new Date().toISOString() // Include current date and time
+    });
+  } else {
+    res.json({
+      success: false,
+      message: `Username ${username} not found`,
+      dateTime: new Date().toISOString() // Include current date and time
     });
   }
-
-  res.json({
-    success: false,
-    message: `Username ${username} not found`
-  });
 });
 
 /* ---------------- CONFIRM USER ---------------- */
 app.post("/confirmfound", (req, res) => {
-  const { username, stats, currentClan, currentBloodline, hakiColor, equippedTitle, totalBossKills, totalItemDrops, trait, maxHealth, runeEquipped } = req.body;
+  const { 
+    username, 
+    message, 
+    stats, 
+    currentClan, 
+    currentBloodline, 
+    hakiColor, 
+    equippedTitle, 
+    totalBossKills, 
+    totalItemDrops, 
+    trait,
+    maxHealth,  // New field for MaxHealth
+    runeEquipped  // New field for RuneEquipped
+  } = req.body; // Extract all relevant data including new fields
 
-  if (username && stats) {
-    console.log(`Confirmation received: ${username} - ${currentClan}`);
+  if (username && message && stats) {
+    console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
 
-    // Store the stats and other details for the user
     if (!usersData[username]) {
-      usersData[username] = {};
+      usersData[username] = {}; // Initialize if not already present
     }
-
-    usersData[username].stats = stats;
+    usersData[username].stats = stats; // Store the stats
     usersData[username].currentClan = currentClan;
     usersData[username].currentBloodline = currentBloodline;
     usersData[username].hakiColor = hakiColor;
@@ -89,25 +79,29 @@ app.post("/confirmfound", (req, res) => {
     usersData[username].totalBossKills = totalBossKills;
     usersData[username].totalItemDrops = totalItemDrops;
     usersData[username].trait = trait;
-    usersData[username].maxHealth = maxHealth;
-    usersData[username].runeEquipped = runeEquipped;
+    usersData[username].maxHealth = maxHealth;  // Store MaxHealth
+    usersData[username].runeEquipped = runeEquipped;  // Store RuneEquipped
 
-    // Return only essential stats back in the response to minimize payload size
-    const limitedStats = {
-      'Damage %': stats['Damage %'],
-      'Crit Chance %': stats['Crit Chance %'],
-      'Sword Damage %': stats['Sword Damage %'],
-      'Melee Damage %': stats['Melee Damage %'],
-      'Luck %': stats['Luck %'],
-      'EXP %': stats['EXP %'],
-      // You can limit further depending on what data you need
-    };
+    console.log("Stats and additional data received for user:", username);
+    console.log({
+        stats: stats,
+        currentClan,
+        currentBloodline,
+        hakiColor,
+        equippedTitle,
+        totalBossKills,
+        totalItemDrops,
+        trait,
+        maxHealth,  // Log MaxHealth
+        runeEquipped  // Log RuneEquipped
+    });  // Log all received data
 
+    // Return the full stats and data back in the response
     res.json({
       success: true,
-      message: "Stats received successfully",
-      dateTime: new Date().toISOString(),
-      stats: limitedStats, // Send only essential data
+      message: "Confirmation and stats received successfully",
+      dateTime: new Date().toISOString(), // Include current date and time
+      stats: stats,  // Send full stats
       currentClan,
       currentBloodline,
       hakiColor,
@@ -115,24 +109,24 @@ app.post("/confirmfound", (req, res) => {
       totalBossKills,
       totalItemDrops,
       trait,
-      maxHealth,
-      runeEquipped
+      maxHealth,  // Include MaxHealth in the response
+      runeEquipped  // Include RuneEquipped in the response
     });
   } else {
     res.json({
       success: false,
-      message: "Invalid username or stats",
-      dateTime: new Date().toISOString()
+      message: "Invalid username, message, or stats",
+      dateTime: new Date().toISOString(), // Include current date and time
     });
   }
 });
 
 /* ---------------- CLEAR USER DATA ---------------- */
 app.post("/clearusername", (req, res) => {
-  const { username } = req.body;
+  const { username } = req.body; // Extract the username from the request body
   if (username && usersData[username]) {
-    delete usersData[username]; // Remove user data from memory
-    delete cache[username]; // Remove cached data
+    delete usersData[username];
+    console.log(`Data and stats for ${username} cleared from server.`);
     res.json({
       success: true,
       message: `Data for ${username} cleared.`
@@ -147,19 +141,20 @@ app.post("/clearusername", (req, res) => {
 
 /* ---------------- UPDATE NOTIFY ---------------- */
 app.post("/updatenotify", (req, res) => {
-  const { updateData } = req.body;
+  const { updateData } = req.body; // Extract the update data from the request body
   if (updateData) {
-    latestUpdate = updateData;
+    console.log('Received update:', updateData);
+    latestUpdate = updateData; // Store the latest update
     res.json({
       success: true,
       message: "Update received successfully",
-      dateTime: new Date().toISOString()
+      dateTime: new Date().toISOString() // Include current date and time
     });
   } else {
     res.json({
       success: false,
       message: "No update data received",
-      dateTime: new Date().toISOString()
+      dateTime: new Date().toISOString() // Include current date and time
     });
   }
 });
@@ -172,7 +167,7 @@ app.post("/clearupdatenotify", (req, res) => {
     res.json({
       success: true,
       message: "Update data cleared successfully",
-      dateTime: new Date().toISOString()
+      dateTime: new Date().toISOString() // Include current date and time
     });
   }, 10000); // Wait 10 seconds before clearing
 });
@@ -181,10 +176,11 @@ app.post("/clearupdatenotify", (req, res) => {
 app.get("/updatenotify", (req, res) => {
   res.json({
     success: true,
-    updateData: latestUpdate,
-    dateTime: new Date().toISOString()
+    updateData: latestUpdate, // Send the latest update
+    dateTime: new Date().toISOString() // Include current date and time
   });
 });
+
 
 /* ---------------- START ---------------- */
 app.listen(PORT, () => {
