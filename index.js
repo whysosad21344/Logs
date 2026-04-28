@@ -63,7 +63,8 @@ app.post("/confirmfound", (req, res) => {
     trait,
     maxHealth,
     runeEquipped,
-    artifacts
+    artifacts,
+    bounty
   } = req.body;
 
   if (username && message && stats) {
@@ -84,7 +85,8 @@ app.post("/confirmfound", (req, res) => {
       trait,
       maxHealth,
       runeEquipped,
-      artifacts
+      artifacts,
+      bounty
     };
 
     console.log("Stats + artifacts received for user:", username);
@@ -124,6 +126,7 @@ app.post("/confirmfound", (req, res) => {
       trait,
       maxHealth,
       runeEquipped,
+      bounty,
       artifacts
     });
   }
