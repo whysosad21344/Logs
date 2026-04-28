@@ -63,7 +63,7 @@ app.post("/confirmfound", (req, res) => {
     trait,
     maxHealth,
     runeEquipped,
-    artifacts   // ✅ NEW
+    artifacts
   } = req.body;
 
   if (username && message && stats) {
@@ -73,24 +73,7 @@ app.post("/confirmfound", (req, res) => {
       usersData[username] = {};
     }
 
-    // Store existing data
-    usersData[username].stats = stats;
-    usersData[username].currentClan = currentClan;
-    usersData[username].currentBloodline = currentBloodline;
-    usersData[username].hakiColor = hakiColor;
-    usersData[username].equippedTitle = equippedTitle;
-    usersData[username].totalBossKills = totalBossKills;
-    usersData[username].totalItemDrops = totalItemDrops;
-    usersData[username].trait = trait;
-    usersData[username].maxHealth = maxHealth;
-    usersData[username].runeEquipped = runeEquipped;
-
-    // ✅ NEW: store artifacts
-    usersData[username].artifacts = artifacts;
-
-    console.log("Stats + artifacts received for user:", username);
-
-    console.log({
+    usersData[username] = {
       stats,
       currentClan,
       currentBloodline,
@@ -101,11 +84,32 @@ app.post("/confirmfound", (req, res) => {
       trait,
       maxHealth,
       runeEquipped,
-      artifacts   // ✅ NEW LOG
-    });
+      artifacts
+    };
 
-    // Return full response
-    res.json({
+    console.log("Stats + artifacts received for user:", username);
+
+    // ✅ FULL DEEP LOG (fixes [Object]/[Array])
+    console.dir(usersData[username], { depth: null });
+
+    // OPTIONAL: cleaner artifact-only log
+    if (artifacts) {
+      for (const [slot, item] of Object.entries(artifacts)) {
+        console.log(`\n[${slot}]`);
+        console.log("Set:", item.set);
+        console.log("Rarity:", item.rarity);
+        console.log("Level:", item.level);
+
+        console.log("Main Stat:", item.mainStat);
+
+        console.log("Substats:");
+        item.substats?.forEach(s => {
+          console.log(` - ${s.stat}: ${s.value}`);
+        });
+      }
+    }
+
+    return res.json({
       success: true,
       message: "Confirmation and stats received successfully",
       dateTime: new Date().toISOString(),
@@ -120,17 +124,15 @@ app.post("/confirmfound", (req, res) => {
       trait,
       maxHealth,
       runeEquipped,
-
-      artifacts   // ✅ NEW RESPONSE
-    });
-
-  } else {
-    res.json({
-      success: false,
-      message: "Invalid username, message, or stats",
-      dateTime: new Date().toISOString(),
+      artifacts
     });
   }
+
+  res.json({
+    success: false,
+    message: "Invalid username, message, or stats",
+    dateTime: new Date().toISOString(),
+  });
 });
 
 /* ---------------- CLEAR USER DATA ---------------- */
