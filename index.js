@@ -61,17 +61,20 @@ app.post("/confirmfound", (req, res) => {
     totalBossKills, 
     totalItemDrops, 
     trait,
-    maxHealth,  // New field for MaxHealth
-    runeEquipped  // New field for RuneEquipped
-  } = req.body; // Extract all relevant data including new fields
+    maxHealth,
+    runeEquipped,
+    artifacts   // ✅ NEW
+  } = req.body;
 
   if (username && message && stats) {
-    console.log(`Confirmation received: ${username} - ${message}`); // Store stats for the user
+    console.log(`Confirmation received: ${username} - ${message}`);
 
     if (!usersData[username]) {
-      usersData[username] = {}; // Initialize if not already present
+      usersData[username] = {};
     }
-    usersData[username].stats = stats; // Store the stats
+
+    // Store existing data
+    usersData[username].stats = stats;
     usersData[username].currentClan = currentClan;
     usersData[username].currentBloodline = currentBloodline;
     usersData[username].hakiColor = hakiColor;
@@ -79,29 +82,16 @@ app.post("/confirmfound", (req, res) => {
     usersData[username].totalBossKills = totalBossKills;
     usersData[username].totalItemDrops = totalItemDrops;
     usersData[username].trait = trait;
-    usersData[username].maxHealth = maxHealth;  // Store MaxHealth
-    usersData[username].runeEquipped = runeEquipped;  // Store RuneEquipped
+    usersData[username].maxHealth = maxHealth;
+    usersData[username].runeEquipped = runeEquipped;
 
-    console.log("Stats and additional data received for user:", username);
+    // ✅ NEW: store artifacts
+    usersData[username].artifacts = artifacts;
+
+    console.log("Stats + artifacts received for user:", username);
+
     console.log({
-        stats: stats,
-        currentClan,
-        currentBloodline,
-        hakiColor,
-        equippedTitle,
-        totalBossKills,
-        totalItemDrops,
-        trait,
-        maxHealth,  // Log MaxHealth
-        runeEquipped  // Log RuneEquipped
-    });  // Log all received data
-
-    // Return the full stats and data back in the response
-    res.json({
-      success: true,
-      message: "Confirmation and stats received successfully",
-      dateTime: new Date().toISOString(), // Include current date and time
-      stats: stats,  // Send full stats
+      stats,
       currentClan,
       currentBloodline,
       hakiColor,
@@ -109,14 +99,36 @@ app.post("/confirmfound", (req, res) => {
       totalBossKills,
       totalItemDrops,
       trait,
-      maxHealth,  // Include MaxHealth in the response
-      runeEquipped  // Include RuneEquipped in the response
+      maxHealth,
+      runeEquipped,
+      artifacts   // ✅ NEW LOG
     });
+
+    // Return full response
+    res.json({
+      success: true,
+      message: "Confirmation and stats received successfully",
+      dateTime: new Date().toISOString(),
+
+      stats,
+      currentClan,
+      currentBloodline,
+      hakiColor,
+      equippedTitle,
+      totalBossKills,
+      totalItemDrops,
+      trait,
+      maxHealth,
+      runeEquipped,
+
+      artifacts   // ✅ NEW RESPONSE
+    });
+
   } else {
     res.json({
       success: false,
       message: "Invalid username, message, or stats",
-      dateTime: new Date().toISOString(), // Include current date and time
+      dateTime: new Date().toISOString(),
     });
   }
 });
