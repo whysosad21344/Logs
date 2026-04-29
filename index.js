@@ -11,26 +11,49 @@ let latestUpdate = ""; // Variable to store the latest update
 
 /* ---------------- LINKING LOGGER ---------------- */
 
-// POST: logs JSON body
+// Global table (always exists while server is running)
+let linkedUsers = [];
+
+// POST: store username into one shared table
 app.post("/linking", (req, res) => {
   console.log("📩 POST /linking received:");
   console.log(req.body);
 
+  const { username } = req.body;
+
+  if (!username) {
+    return res.json({
+      success: false,
+      message: "No username provided",
+      dateTime: new Date().toISOString()
+    });
+  }
+
+  // prevent duplicates (optional but recommended)
+  if (!linkedUsers.includes(username)) {
+    linkedUsers.push(username);
+  }
+
+  console.log("📌 Linked Users Table:");
+  console.log(linkedUsers);
+
   res.json({
     success: true,
-    message: "Logged POST data",
+    message: "Username stored",
+    total: linkedUsers.length,
     dateTime: new Date().toISOString()
   });
 });
 
-// GET: logs query params
+// GET: view full table OR log query if provided
 app.get("/linking", (req, res) => {
   console.log("📩 GET /linking received:");
   console.log(req.query);
 
   res.json({
     success: true,
-    message: "Logged GET data",
+    users: linkedUsers,
+    total: linkedUsers.length,
     query: req.query,
     dateTime: new Date().toISOString()
   });
