@@ -9,7 +9,6 @@ let usersData = {};
 let guildData = {}; // New in-memory storage for guild data
 let latestUpdate = ""; // Variable to store the latest update
 
-/* ---------------- LINKING LOGGER ---------------- */
 
 // Global table (always exists while server is running)
 let linkedUsers = [];
@@ -19,7 +18,7 @@ app.post("/linking", (req, res) => {
   console.log("📩 POST /linking received:");
   console.log(req.body);
 
-  const { username, code } = req.body;
+  const { username, code } = req.body; // ✅ added code
 
   if (!username || !code) {
     return res.json({
@@ -29,14 +28,13 @@ app.post("/linking", (req, res) => {
     });
   }
 
-  // check if user already exists
-  const existingUser = linkedUsers.find(u => u.username === username);
+  // prevent duplicates (update code if exists)
+  const existing = linkedUsers.find(u => u.username === username);
 
-  if (!existingUser) {
-    linkedUsers.push({ username, code });
+  if (!existing) {
+    linkedUsers.push({ username, code }); // ✅ added code storage
   } else {
-    // update code if user already exists
-    existingUser.code = code;
+    existing.code = code;
   }
 
   console.log("📌 Linked Users Table:");
@@ -44,7 +42,7 @@ app.post("/linking", (req, res) => {
 
   res.json({
     success: true,
-    message: "User stored",
+    message: "Username stored",
     total: linkedUsers.length,
     dateTime: new Date().toISOString()
   });
@@ -55,8 +53,8 @@ app.get("/linking", (req, res) => {
   console.log("📩 GET /linking received:");
   console.log(req.query);
 
-  // 🖥️ BROWSER VIEW (HTML)
   if (!req.headers.accept || req.headers.accept.includes("text/html")) {
+
     let html = `
     <html>
       <head>
@@ -68,9 +66,7 @@ app.get("/linking", (req, res) => {
             color: #ffffff;
             padding: 20px;
           }
-          h1 {
-            color: #00ffcc;
-          }
+          h1 { color: #00ffcc; }
           table {
             width: 60%;
             border-collapse: collapse;
@@ -81,12 +77,8 @@ app.get("/linking", (req, res) => {
             padding: 10px;
             text-align: left;
           }
-          th {
-            background: #222;
-          }
-          tr:nth-child(even) {
-            background: #1a1a1a;
-          }
+          th { background: #222; }
+          tr:nth-child(even) { background: #1a1a1a; }
         </style>
       </head>
       <body>
@@ -96,7 +88,7 @@ app.get("/linking", (req, res) => {
           <tr>
             <th>#</th>
             <th>Username</th>
-            <th>Code</th>
+            <th>Code</th> <!-- ✅ added -->
           </tr>
     `;
 
@@ -119,7 +111,6 @@ app.get("/linking", (req, res) => {
     return res.send(html);
   }
 
-  // 🤖 JSON OUTPUT (for scripts)
   res.json({
     success: true,
     users: linkedUsers,
