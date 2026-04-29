@@ -9,6 +9,33 @@ let usersData = {};
 let guildData = {}; // New in-memory storage for guild data
 let latestUpdate = ""; // Variable to store the latest update
 
+/* ---------------- LINKING LOGGER ---------------- */
+
+// POST: logs JSON body
+app.post("/linking", (req, res) => {
+  console.log("📩 POST /linking received:");
+  console.log(req.body);
+
+  res.json({
+    success: true,
+    message: "Logged POST data",
+    dateTime: new Date().toISOString()
+  });
+});
+
+// GET: logs query params
+app.get("/linking", (req, res) => {
+  console.log("📩 GET /linking received:");
+  console.log(req.query);
+
+  res.json({
+    success: true,
+    message: "Logged GET data",
+    query: req.query,
+    dateTime: new Date().toISOString()
+  });
+});
+
 /* ---------------- STATCHECK ---------------- */
 app.post("/statcheck", (req, res) => {
   const { username } = req.body; // Extract the username from the request body
@@ -28,6 +55,8 @@ app.post("/statcheck", (req, res) => {
     });
   }
 });
+
+
 
 /* ---------------- CHECK USERNAME ---------------- */
 app.get("/checkusername", (req, res) => {
