@@ -335,6 +335,7 @@ app.get("/updatenotify", (req, res) => {
 
 
 /* ---------------- START ---------------- */
-app.listen(PORT, () => {
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Statcheck server running on port ${PORT}`);
 });
