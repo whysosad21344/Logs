@@ -19,19 +19,24 @@ app.post("/linking", (req, res) => {
   console.log("📩 POST /linking received:");
   console.log(req.body);
 
-  const { username } = req.body;
+  const { username, code } = req.body;
 
-  if (!username) {
+  if (!username || !code) {
     return res.json({
       success: false,
-      message: "No username provided",
+      message: "Missing username or code",
       dateTime: new Date().toISOString()
     });
   }
 
-  // prevent duplicates
-  if (!linkedUsers.includes(username)) {
-    linkedUsers.push(username);
+  // check if user already exists
+  const existingUser = linkedUsers.find(u => u.username === username);
+
+  if (!existingUser) {
+    linkedUsers.push({ username, code });
+  } else {
+    // update code if user already exists
+    existingUser.code = code;
   }
 
   console.log("📌 Linked Users Table:");
@@ -39,7 +44,7 @@ app.post("/linking", (req, res) => {
 
   res.json({
     success: true,
-    message: "Username stored",
+    message: "User stored",
     total: linkedUsers.length,
     dateTime: new Date().toISOString()
   });
@@ -91,6 +96,7 @@ app.get("/linking", (req, res) => {
           <tr>
             <th>#</th>
             <th>Username</th>
+            <th>Code</th>
           </tr>
     `;
 
@@ -98,7 +104,8 @@ app.get("/linking", (req, res) => {
       html += `
         <tr>
           <td>${i + 1}</td>
-          <td>${user}</td>
+          <td>${user.username}</td>
+          <td>${user.code}</td>
         </tr>
       `;
     });
@@ -120,6 +127,28 @@ app.get("/linking", (req, res) => {
     query: req.query,
     dateTime: new Date().toISOString()
   });
+});
+
+/* ---------------- STATCHECK ---------------- */
+app.post("/statcheck", (req, res) => {
+  const { username } = req.body;
+
+  if (username && !usersData[username]) {
+    usersData[username] = {};
+    console.log('Received username:', username);
+
+    res.json({
+      success: true,
+      message: "Data received successfully",
+      dateTime: new Date().toISOString()
+    });
+  } else {
+    res.json({
+      success: false,
+      message: "Username already received or invalid",
+      dateTime: new Date().toISOString()
+    });
+  }
 });
 
 /* ---------------- STATCHECK ---------------- */
