@@ -14,7 +14,7 @@ let latestUpdate = ""; // Variable to store the latest update
 // Global table (always exists while server is running)
 let linkedUsers = [];
 
-// POST: store username into one shared table
+/* ---------------- POST: ADD USER ---------------- */
 app.post("/linking", (req, res) => {
   console.log("📩 POST /linking received:");
   console.log(req.body);
@@ -29,7 +29,7 @@ app.post("/linking", (req, res) => {
     });
   }
 
-  // prevent duplicates (optional but recommended)
+  // prevent duplicates
   if (!linkedUsers.includes(username)) {
     linkedUsers.push(username);
   }
@@ -45,11 +45,74 @@ app.post("/linking", (req, res) => {
   });
 });
 
-// GET: view full table OR log query if provided
+/* ---------------- GET: VIEW USERS ---------------- */
 app.get("/linking", (req, res) => {
   console.log("📩 GET /linking received:");
   console.log(req.query);
 
+  // 🖥️ BROWSER VIEW (HTML)
+  if (!req.headers.accept || req.headers.accept.includes("text/html")) {
+    let html = `
+    <html>
+      <head>
+        <title>Linked Users</title>
+        <style>
+          body {
+            font-family: Arial;
+            background: #0f0f0f;
+            color: #ffffff;
+            padding: 20px;
+          }
+          h1 {
+            color: #00ffcc;
+          }
+          table {
+            width: 60%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          th, td {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: left;
+          }
+          th {
+            background: #222;
+          }
+          tr:nth-child(even) {
+            background: #1a1a1a;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Linked Users (${linkedUsers.length})</h1>
+
+        <table>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+          </tr>
+    `;
+
+    linkedUsers.forEach((user, i) => {
+      html += `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${user}</td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </table>
+      </body>
+    </html>
+    `;
+
+    return res.send(html);
+  }
+
+  // 🤖 JSON OUTPUT (for scripts)
   res.json({
     success: true,
     users: linkedUsers,
